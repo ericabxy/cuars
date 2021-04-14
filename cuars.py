@@ -1,4 +1,6 @@
+import datetime
 import os
+import re
 import sys
 
 from PIL import Image, ImageDraw, ImageFont
@@ -8,12 +10,11 @@ def main():
     inter = Interface(135, 240)
     if len(sys.argv) > 1:
         print("cuars: creating interface")
-        for i in range(5):
-            name = inter.set_palette(i)
-            image = inter.get_directory(sys.argv[1])
-            filename = name + ".example" + ".png"
-            image.save(filename)
-            print("cuars: saved image to " + filename)
+        image = inter.get_directory(sys.argv[1])
+        isotime = datetime.datetime.now().replace(microsecond=0).isoformat()
+        filename = "".join(re.split("-|T|:", isotime)) + ".example.png"
+        image.save(filename)
+        print("cuars: saved image to " + filename)
     else:
         print("cuars: no directory given")
         print("cuars: try invoking with \"test.dir\" on the command line")
@@ -80,7 +81,7 @@ class Interface():
     def set_palette(self, key=0):
         palettes = {
             "enhanced": ("#222222", "#AAAAFF", "#AAFFAA", "#AAFFFF",
-                         "#FFAAAA", "#FFAAFF", "#FFFFAA", "#AAAAAA"),
+                         "#FFAAAA", "#FFAAFF", "#FFFFAA", "#DDDDDD"),
             "solarized": ("#2D2D2D", "#268BD2", "#859900", "#2AA198",
                           "#DC322F", "#D33682", "#B58900", "#EEE8D5"),
             "quadro-a": ("#222222", "#5555AA", "#55AA55", "#DDDDDD",
