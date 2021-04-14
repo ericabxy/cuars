@@ -7,10 +7,21 @@ from PIL import Image, ImageDraw, ImageFont
 
 def main():
     print("Invoked " + sys.argv[0])
-    inter = Interface(135, 240)
     if len(sys.argv) > 1:
         print("cuars: creating interface")
-        image = inter.get_directory(sys.argv[1])
+#        inter = Interface(135, 240)
+        inter = Interface(240, 135)
+        if os.path.isdir(sys.argv[1]):
+            image = inter.get_directory(sys.argv[1])
+        else:
+            if len(sys.argv) > 2:
+                shades = sys.argv[2].split(",")
+                scheme = []
+                for s in shades:
+                    scheme.append(int(s))
+                inter.set_scheme(scheme)
+            name = os.path.split(os.getcwd())[1]
+            image = inter.get_table(name, sys.argv[1].split(","))
         isotime = datetime.datetime.now().replace(microsecond=0).isoformat()
         filename = "".join(re.split("-|T|:", isotime)) + ".example.png"
         image.save(filename)
@@ -21,12 +32,13 @@ def main():
 
 class Interface():
     def __init__(self, width, height):
-        execpath = os.path.dirname(sys.argv[0])
-        fontpath = os.path.join(execpath, "BebasNeue.otf")
+        modpath = os.path.dirname(__file__)
+        fontpath = os.path.join(modpath, "BebasNeue.otf")
         self.font = ImageFont.truetype(fontpath, 22)
         self.image = Image.new("RGB", (width, height))
         self.draw = ImageDraw.Draw(self.image)
         self.set_palette()
+        self.set_scheme((1, 0, 2, 0))
         self.width = width
         self.height = height
         self.rotation = 0
@@ -37,18 +49,18 @@ class Interface():
         bgcol, fgcol = pal[0], pal[7]
         rect = (left, top, right, bottom)
         self.draw.rectangle(rect, outline=0, fill=bgcol)
-        self.draw.text((left+5, top+5), name.upper(), font=self.font, fill=fgcol)
-        y = 30
+        self.draw.text((left+5, top), name.upper(), font=self.font, fill=fgcol)
+        y = 25
         shades = self.scheme
         for i in range(len(list)):
             c = (i%len(shades))
             bgcol = pal[shades[c][0]]
             fgcol = pal[shades[c][1]]
-            rect = (left+5, y, right-5, y+25)
+            rect = (left+5, y, right-5, y+23)
             self.draw.rectangle(rect, outline=bgcol, fill=bgcol)
             text = list[i].upper()
             self.draw.text((left+5, y), text, font=self.font, fill=fgcol)
-            y += 30
+            y += 28
         return self.image
 
     def get_directory(self, path):
@@ -103,7 +115,12 @@ class Interface():
         else:
             self.palette = palettes["enhanced-"]
             return "default"
-        self.scheme = ((3, 0), (5, 0))
+
+    def set_scheme(self, seq):
+        scheme = []
+        for i in range(0, len(seq)-1, 2):
+            scheme.append((seq[i], seq[i+1]))
+        self.scheme = scheme
 
 
 if __name__ == "__main__":
