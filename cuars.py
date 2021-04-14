@@ -112,9 +112,12 @@ class Interface():
         elif key in ("quadro-b", 3):
             self.palette = ("#222222", "#55AAAA", "#AA55AA", "#DDDDDD",
                             "#DDDDDD", "#DDDDDD", "#DDDDDD", "#DDDDDD")
-        elif key in ("tabman", 4):
+        elif key in ("tabman-a", 4):
             self.palette = ("#B03060", "#22AA99", "#22AA99", "#D9D9D9",
-                            "#D9D9D9", "#D9D9D9", "#708090", "#D9D9D9")
+                            "#D9D9D9", "#D9D9D9", "#D9D9D9", "#D9D9D9")
+        elif key in ("tabman-b", 5):
+            self.palette = ("#708090", "#22AA99", "#B03060", "#D9D9D9",
+                            "#D9D9D9", "#D9D9D9", "#D9D9D9", "#D9D9D9")
         else:  # default palette 0, "enhanced-"
             self.palette = ("#222222", "#AAAAFF", "#AAFFAA", "#AAFFFF",
                             "#FFAAAA", "#FFAAFF", "#FFFFAA", "#DDDDDD")
