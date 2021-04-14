@@ -1,23 +1,22 @@
-import datetime
 import os
-import re
 import sys
 
 from PIL import Image, ImageDraw, ImageFont
 
 def main():
-    print("Invoked: " + sys.argv[0])
-    print("cuars: creating interface")
+    print("Invoked " + sys.argv[0])
     inter = Interface(135, 240)
     if len(sys.argv) > 1:
-        image = inter.get_tree(sys.argv[1])
+        print("cuars: creating interface")
+        for i in range(5):
+            name = inter.set_palette(i)
+            image = inter.get_directory(sys.argv[1])
+            filename = name + ".example" + ".png"
+            image.save(filename)
+            print("cuars: saved image to " + filename)
     else:
-        image = inter.get_buttons("command",
-            ("arg a", "arg b", "arg c", "arg d", "arg e", "arg f", "arg e"))
-    isotime = datetime.datetime.now().replace(microsecond=0).isoformat()
-    filename = "".join(re.split("-|T|:", isotime)) + ".example.png"
-    image.save(filename)
-    print("cuars: saved image to " + filename)
+        print("cuars: no directory given")
+        print("cuars: try invoking with \"test.dir\" on the command line")
 
 class Interface():
     def __init__(self, width, height):
@@ -26,12 +25,12 @@ class Interface():
         self.font = ImageFont.truetype(fontpath, 22)
         self.image = Image.new("RGB", (width, height))
         self.draw = ImageDraw.Draw(self.image)
-        self.set_palettes()
+        self.set_palette()
         self.width = width
         self.height = height
         self.rotation = 0
 
-    def get_buttons(self, name, list):
+    def get_table(self, name, list):
         left, top, right, bottom = 0, 0, self.width, self.height
         pal = self.palette
         bgcol, fgcol = pal[0], pal[7]
@@ -51,7 +50,7 @@ class Interface():
             y += 30
         return self.image
 
-    def get_tree(self, path):
+    def get_directory(self, path):
         path = os.path.abspath(path)
         nodes = os.listdir(path)
         nodes.sort()
@@ -63,7 +62,7 @@ class Interface():
                 nodes.remove(node)
             elif os.path.isdir(os.path.join(path, node)):
                 shades.insert(0, (1, 0))
-            elif ext in ("bin", "exe"):
+            elif os.access(os.path.join(path, node), os.X_OK):
                 shades.insert(0, (2, 0))
             elif ext in ("oga", "ogg"):
                 shades.insert(0, (3, 0))
@@ -75,19 +74,35 @@ class Interface():
                 shades.insert(0, (7, 0))
         root = os.path.split(path)
         root = root[len(root)-1]
-        self.palette = self.pal22
         self.scheme = shades
-        return self.get_buttons(root, nodes)
+        return self.get_table(root, nodes)
 
-    def set_palettes(self):
-        self.pal20 = ("#111111", "#AAAAFF", "#AAFFAA", "#AAFFFF",
-                      "#FFAAAA", "#FFAAFF", "#FFFFAA", "#AAAAAA")  # extended-
-        self.pal21 = ("#555555", "#AAAAFF", "#AAFFAA", "#AAFFFF",
-                      "#FFAAAA", "#FFAAFF", "#FFFFAA", "#FFFFFF")  # extended+
-        self.pal22 = ("#2D2D2D", "#268BD2", "#859900", "#2AA198",
-                      "#DC322F", "#D33682", "#B58900", "#EEE8D5")  # solarized
-        self.palette = self.pal21
-        self.scheme = ((1, 0), (2, 0))
+    def set_palette(self, key=0):
+        palettes = {
+            "enhanced": ("#222222", "#AAAAFF", "#AAFFAA", "#AAFFFF",
+                         "#FFAAAA", "#FFAAFF", "#FFFFAA", "#AAAAAA"),
+            "solarized": ("#2D2D2D", "#268BD2", "#859900", "#2AA198",
+                          "#DC322F", "#D33682", "#B58900", "#EEE8D5"),
+            "quadro-a": ("#222222", "#5555AA", "#55AA55", "#DDDDDD",
+                         "#DDDDDD", "#DDDDDD", "#DDDDDD", "#DDDDDD"),
+            "quadro-b": ("#222222", "#55AAAA", "#AA55AA", "#DDDDDD",
+                         "#DDDDDD", "#DDDDDD", "#DDDDDD", "#DDDDDD"),
+            "tabman": ("#B03060", "#22AA99", "#22AA99", "#D9D9D9",
+                       "#D9D9D9", "#D9D9D9", "#708090", "#D9D9D9")
+        }
+        if isinstance(key, int):
+            for i, k in enumerate(palettes):
+                if i == key:
+                    self.palette = palettes[k]
+                    return k
+            return "not found"
+        elif key in palettes:
+            self.palette = palettes[key]
+            return key
+        else:
+            self.palette = palettes["enhanced-"]
+            return "default"
+        self.scheme = ((3, 0), (5, 0))
 
 
 if __name__ == "__main__":
