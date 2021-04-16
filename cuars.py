@@ -27,23 +27,12 @@ def main():
     print("Invoked " + sys.argv[0])
     print("cuars: creating interface")
     inter = Interface(135, 240)
-    if len(sys.argv) > 1:
-        if os.path.isdir(sys.argv[1]):
-            print("cuars: displaying table of contents for " + sys.argv[1])
-            image = inter.get_directory(sys.argv[1])
-        else:
-            print("cuars: displaying table of " + sys.argv[1])
-            if len(sys.argv) > 2:
-                shades = sys.argv[2].split(",")
-                scheme = []
-                for s in shades:
-                    scheme.append(int(s))
-                inter.set_scheme(scheme)
-            image = inter.get_table(sys.argv[1].split(","))
+    if len(sys.argv) > 1 and os.path.isdir(sys.argv[1]):
+        path = sys.argv[1]
     else:
-        print("cuars: drawing an example display")
-        image = inter.get_table(("node 1", "node 2", "node 3", "node 4",
-                                 "node 5",))
+        path = os.getcwd()
+    print("cuars: displaying table of contents for " + path)
+    image = inter.get_directory(path)
     isotime = datetime.datetime.now().replace(microsecond=0).isoformat()
     filename = "".join(re.split("-|T|:", isotime)) + ".example.png"
     image.save(filename)
@@ -51,9 +40,11 @@ def main():
 
 class Interface():
     def __init__(self, width, height):
-        modpath = os.path.dirname(__file__)
-        fontpath = os.path.join(modpath, "BebasNeue.otf")
-        self.font = ImageFont.truetype(fontpath, 22)
+        basedir = os.path.dirname(__file__)
+        path = os.path.join(basedir, "BebasNeue.otf")
+        self.font = ImageFont.truetype(path, 22)
+        path = os.path.join(basedir, "ASCII.ttf")
+        self.ifont = ImageFont.truetype(path, 22)
         self.image = Image.new("RGB", (width, height))
         self.draw = ImageDraw.Draw(self.image)
         self.set_frame(os.path.basename(os.getcwd()))
@@ -63,34 +54,31 @@ class Interface():
         self.height = height
         self.rotation = 0
 
-    def get_directory(self, path):
-        path = os.path.abspath(path)
-        nodes = os.listdir(path)
-        nodes.sort()
+    def get_directory(self, dirname, mark=None):
+        self.name = os.path.split(dirname)[1]
+        nodes = self.list_nodes(dirname)
         shades = []
-        for node in reversed(nodes):
-            splitted = node.split(".")
-            ext = splitted[len(splitted)-1]
-            if node[0] == ".":
-                nodes.remove(node)
-            elif os.path.isdir(os.path.join(path, node)):
-                shades.insert(0, (1, 0))
-            elif os.access(os.path.join(path, node), os.X_OK):
-                shades.insert(0, (2, 0))
-            elif ext in ("oga", "ogg"):
-                shades.insert(0, (3, 0))
-            elif ext in ("tar", "zip"):
-                shades.insert(0, (4, 0))
-            elif ext in ("jpg", "png", "svg"):
-                shades.insert(0, (5, 0))
-            else:
-                shades.insert(0, (7, 0))
-        root = os.path.split(path)
-        self.name = root[len(root)-1]
-        self.scheme = shades
-        return self.get_table(nodes)
+        for node in nodes:
+            path = os.path.join(dirname, node)
+            if os.path.islink(path):
+                shades.append(3)
+                shades.append(0)
+            elif os.path.ismount(path):
+                shades.append(4)
+                shades.append(0)
+            elif os.path.isdir(path):
+                shades.append(1)
+                shades.append(0)
+            elif os.access(path, os.X_OK):
+                shades.append(2)
+                shades.append(0)
+            elif os.path.isfile(path):
+                shades.append(7)
+                shades.append(0)
+        self.set_scheme(shades)
+        return self.get_table(nodes, mark)
 
-    def get_table(self, list):
+    def get_table(self, nodes, mark=None):
         left, top, right, bottom = 0, 0, self.width, self.height
         pal = self.palette
         name, bdcol = self.name, pal[self.bdcolor]
@@ -102,16 +90,29 @@ class Interface():
         self.draw.rectangle(rect, outline=bgcol, fill=bgcol)
         y = 25
         shades = self.scheme
-        for i in range(len(list)):
+        for i in range(len(nodes)):
             c = (i%len(shades))
             bgcol = pal[shades[c][0]]
             fgcol = pal[shades[c][1]]
-            rect = (left+5, y, left+120, y+23)
+            rect = (left+5, y, left+105, y+23)
             self.draw.rectangle(rect, outline=bgcol, fill=bgcol)
-            text = list[i].upper()
+#                points = (left+105, y, left+100, y+12, left+105, y+23)
+#                self.draw.polygon(points, outline=fgcol, fill=fgcol)
+            text = nodes[i].upper()
             self.draw.text((left+5, y), text, font=self.font, fill=fgcol)
+            if i == mark:
+                x, y = left+90, y+0
+                self.draw.text((x, y), chr(17), font=self.ifont, fill=fgcol)
             y += 28
         return self.image
+
+    def list_nodes(self, path):
+        nodes = os.listdir(path)
+        for node in nodes:
+            if node[0] == ".":
+                nodes.remove(node)
+        nodes.sort()
+        return nodes
 
     def set_frame(self, name, shad=(0, 0, 6)):
         self.name = name
