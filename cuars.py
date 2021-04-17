@@ -41,10 +41,8 @@ def main():
 class Interface():
     def __init__(self, width, height):
         basedir = os.path.dirname(__file__)
-        path = os.path.join(basedir, "BebasNeue.otf")
+        path = os.path.join(basedir, "fonts", "BebasNeue.otf")
         self.font = ImageFont.truetype(path, 22)
-        path = os.path.join(basedir, "ASCII.ttf")
-        self.ifont = ImageFont.truetype(path, 22)
         self.image = Image.new("RGB", (width, height))
         self.draw = ImageDraw.Draw(self.image)
         self.set_frame(os.path.basename(os.getcwd()))
@@ -86,6 +84,8 @@ class Interface():
         rect = (left, top, right, bottom)  # draw the frame and title
         self.draw.rectangle(rect, outline=bdcol, fill=bdcol)
         self.draw.text((left+5, top), name.upper(), font=self.font, fill=fgcol)
+        text = "nodes " + str(len(nodes))  # draw the # of nodes
+        self.draw.text((right-75, top), text, font=self.font, fill=fgcol)
         rect = (left+2, top+22, right, bottom)  # draw the table background
         self.draw.rectangle(rect, outline=bgcol, fill=bgcol)
         y = 25
@@ -96,14 +96,15 @@ class Interface():
             fgcol = pal[shades[c][1]]
             rect = (left+5, y, left+105, y+23)
             self.draw.rectangle(rect, outline=bgcol, fill=bgcol)
-#                points = (left+105, y, left+100, y+12, left+105, y+23)
-#                self.draw.polygon(points, outline=fgcol, fill=fgcol)
             text = nodes[i].upper()
             self.draw.text((left+5, y), text, font=self.font, fill=fgcol)
             if i == mark:
-                x, y = left+90, y+0
-                self.draw.text((x, y), chr(17), font=self.ifont, fill=fgcol)
+                rect = (left+97, y, left+100, y+23)
+                self.draw.rectangle(rect, outline=fgcol, fill=fgcol)
             y += 28
+            if y > bottom:
+                y = 25
+                left = left + 105
         return self.image
 
     def list_nodes(self, path):
