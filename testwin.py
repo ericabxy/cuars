@@ -5,7 +5,7 @@ import tempfile
 
 import pyglet
 
-from cuars import cuars
+import cuars
 
 # Figure out which directory we're gonna show
 if len(sys.argv) > 1 and os.path.isdir(sys.argv[1]):
@@ -14,8 +14,11 @@ else:
     basedir = os.getcwd()
 here = os.path.dirname(__file__)
 
-interf = cuars.Interface(160, 120)
-nodes = interf.list_nodes(basedir)
+interf = cuars.Interface(200, 150)
+nodes = []
+for name in os.listdir(basedir):
+    nodes.append(os.path.join(basedir, name))
+nodes.sort()
 mark = len(nodes)
 window = pyglet.window.Window()
 
@@ -48,10 +51,11 @@ def on_key_press(symbol, modifiers):
 
 @window.event
 def on_draw():
+    global mark
     window.clear()
     with tempfile.TemporaryDirectory() as tmpdirname:
         filename = os.path.join(tmpdirname, "interf.png")
-        interf.draw_directory(basedir, mark)
+        max = interf.draw_directory(nodes, mark)
         interf.image.save(filename)
         image = pyglet.image.load(filename)
     image.anchor_x=image.width//2

@@ -6,8 +6,8 @@ CUARS is designed for screens as small as 160x120 with either a touch
 interface or a two-button interface. No keyboard or mouse required.
 
 
-REQUIREMENTS
+# Requirements
 
 CUARS requires Pillow, the friendly PIL fork.
 
-  $ pip install pillow
+> pip install pillow
