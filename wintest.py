@@ -1,10 +1,11 @@
-import cuars
-from datetime import datetime
 import os
-import pyglet
 import subprocess
 import sys
 import tempfile
+
+import pyglet
+
+from cuars import cuars
 
 # Figure out which directory we're gonna show
 if len(sys.argv) > 1 and os.path.isdir(sys.argv[1]):
@@ -14,7 +15,6 @@ else:
 here = os.path.dirname(__file__)
 
 interf = cuars.Interface(160, 120)
-interf = cuars.Interface(320, 240)
 nodes = interf.list_nodes(basedir)
 mark = len(nodes)
 window = pyglet.window.Window()
@@ -51,7 +51,8 @@ def on_draw():
     window.clear()
     with tempfile.TemporaryDirectory() as tmpdirname:
         filename = os.path.join(tmpdirname, "interf.png")
-        interf.get_directory(basedir, mark).save(filename)
+        interf.draw_directory(basedir, mark)
+        interf.image.save(filename)
         image = pyglet.image.load(filename)
     image.anchor_x=image.width//2
     image.anchor_y=image.height//2
