@@ -15,10 +15,7 @@ else:
 here = os.path.dirname(__file__)
 
 interf = cuars.Interface(200, 150)
-nodes = []
-for name in os.listdir(basedir):
-    nodes.append(os.path.join(basedir, name))
-nodes.sort()
+
 mark = len(nodes)
 window = pyglet.window.Window()
 
@@ -26,9 +23,9 @@ window = pyglet.window.Window()
 def on_key_press(symbol, modifiers):
     global mark
     if symbol == pyglet.window.key.A:
-        mark = (mark+1)%(len(nodes)+1)
+        mark = mark + 1
     elif symbol == pyglet.window.key.B and mark < len(nodes):
-        path = os.path.join(basedir, nodes[mark])
+        path = nodes[mark]
         num = str(mark)
         real = os.path.realpath(path)
         bytes = os.path.getsize(path)
@@ -52,12 +49,14 @@ def on_key_press(symbol, modifiers):
 @window.event
 def on_draw():
     global mark
-    window.clear()
+    nodes = cuars.get_directory(basedir)
     with tempfile.TemporaryDirectory() as tmpdirname:
         filename = os.path.join(tmpdirname, "interf.png")
-        max = interf.draw_directory(nodes, mark)
+        mark = mark % len(nodes)
+        interf.draw_directory(nodes, mark)
         interf.image.save(filename)
         image = pyglet.image.load(filename)
+    window.clear()
     image.anchor_x=image.width//2
     image.anchor_y=image.height//2
     image.blit(window.width//2, window.height//2)
