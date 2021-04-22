@@ -21,6 +21,7 @@ import subprocess
 
 from PIL import Image, ImageDraw, ImageFont
 
+
 class Interface():
     def __init__(self, width, height):
         """Create a display area from specified dimensions
@@ -36,12 +37,12 @@ class Interface():
         self.name = "CUARS"
         self.palette = ("#222222", "#AAAAFF", "#AAFFAA", "#AAFFFF",
                         "#FFAAAA", "#FFAAFF", "#FFFFAA", "#DDDDDD")
-        self.bg, self.bd = "#222222", "#FFFFAA"
+        self.bg, self.bd, self.tb = "#222222", "#FFFFAA", "#222222"
         self.width = width
         self.height = height
         self.padding = 5
 
-    def draw_directory(self, dirname, files, mark=None):
+    def show_directory(self, dirname, files, mark=None):
         """List directory contents in a table
 
         Color-codes each file according to the palette. Directories are
@@ -52,33 +53,32 @@ class Interface():
         nodes = []
         for name in files:
             path = os.path.join(dirname, name)
-            node = {'w': 100, 'h': 25, 'text': name,
-                    'color': self.palette[0]}
+            node = dict(w=100, h=25, text=name, color=self.palette[0])
             if os.path.islink(path):
-                node['bgcolor'] = self.palette[3]
+                node.update(bgcolor = self.palette[3])
             elif os.path.ismount(path):
-                node['bgcolor'] = self.palette[4]
+                node.update(bgcolor = self.palette[4])
             elif os.path.isdir(path):
-                node['bgcolor'] = self.palette[1]
+                node.update(bgcolor = self.palette[1])
             elif os.access(path, os.X_OK):
-                node['bgcolor'] = self.palette[2]
+                node.update(bgcolor = self.palette[2])
             else:
-                node['bgcolor'] = self.palette[7]
+                node.update(bgcolor = self.palette[7])
             nodes.append(node)
         self.nodes = nodes
-        return self.draw_table(nodes, mark)
+        return self.show_table(nodes, mark)
 
-    def draw_lines(self, name, list):
-        self.name = name
+    def show_text(self, list, fore=(3, 5), back=(0, 0)):
         nodes = []
-        for line in list:
+        for i, line in enumerate(list):
+            fg, bg = fore[i%len(fore)], back[i%len(back)]
             nodes.append({'w': 250, 'h': 16, 'text': line,
-                          'bgcolor': self.palette[0],
-                          'color': self.palette[7]})
+                          'bgcolor': self.palette[bg],
+                          'color': self.palette[fg]})
         self.nodes = nodes
-        return self.draw_table(nodes)
+        return self.show_table(nodes)
 
-    def draw_table(self, badges, mark=None, start=0):
+    def show_table(self, badges, mark=None, start=0):
         left, top, right, bottom = 0, 0, self.width, self.height
         # Draw the display border and table background
         rect, color = (left, top, right, bottom), self.bd
@@ -103,10 +103,10 @@ class Interface():
             if y+h > bottom:  # Start next column
                 x, y = x+w+self.padding, 25
         # Draw title and paging arrows
-        text, color = self.name.upper(), self.bg
+        text, color = self.name.upper(), self.tb
         self.draw.text((left+5, top), text, font=self.font, fill=color)
         z = len(str(len(badges)))
-        text = str(start).zfill(z) + "-" + str(i).zfill(z)
+        text = str(start).zfill(z) + "-" + str(len(badges)).zfill(z)
         x = self.width - self.font.getsize(text)[0]
         self.draw.rectangle((x-3, top, x-1, top+22), outline=color, fill=color)
         self.draw.text((x, top), text, font=self.font, fill=color)

@@ -13,7 +13,7 @@ if len(sys.argv) > 1 and os.path.isdir(sys.argv[1]):
 else:
     path = os.getcwd()
 print("cuars: displaying table of contents for " + path)
-inter.draw_directory(path)
+inter.show_directory(path)
 image = inter.image
 isotime = datetime.datetime.now().replace(microsecond=0).isoformat()
 filename = "".join(re.split("-|T|:", isotime)) + ".example.png"

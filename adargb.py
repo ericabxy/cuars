@@ -21,10 +21,11 @@ def main():
         if os.path.isfile(os.path.join(dirname, "console.ini")):
             lines = cuars.get_echoes(dirname)
             name = os.path.basename(dirname)
-            interf.draw_lines(name, lines)
+            interf.name = name
+            interf.draw_text(lines)
         else:
             files = cuars.get_directory(dirname)
-            interf.draw_directory(dirname, files)
+            interf.show_directory(dirname, files)
         # Display image.
         image = interf.image
         display.show(image, 270)
