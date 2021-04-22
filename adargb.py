@@ -21,8 +21,11 @@ def main():
         if os.path.isfile(os.path.join(dirname, "console.ini")):
             lines = cuars.get_echoes(dirname)
             name = os.path.basename(dirname)
-            interf.name = name
-            interf.draw_text(lines)
+#            interf.set_font("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 24)
+            interf.bd = interf.palette[0]
+            interf.tb = interf.palette[5]
+            interf.name = lines.pop(0)
+            interf.show_text(lines, (1, 2, 3, 4))
         else:
             files = cuars.get_directory(dirname)
             interf.show_directory(dirname, files)

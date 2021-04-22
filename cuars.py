@@ -42,6 +42,13 @@ class Interface():
         self.height = height
         self.padding = 5
 
+    def set_font(self, path, size):
+        if os.path.exists(path):
+            self.font = ImageFont.truetype(path, size)
+            return True
+        else:
+            return False
+
     def show_directory(self, dirname, files, mark=None):
         """List directory contents in a table
 
@@ -72,7 +79,7 @@ class Interface():
         nodes = []
         for i, line in enumerate(list):
             fg, bg = fore[i%len(fore)], back[i%len(back)]
-            nodes.append({'w': 250, 'h': 16, 'text': line,
+            nodes.append({'w': 250, 'h': 22, 'text': line,
                           'bgcolor': self.palette[bg],
                           'color': self.palette[fg]})
         self.nodes = nodes
