@@ -18,25 +18,32 @@ def main():
     print("Interface should appear on the RGB display now")
     while True:
         dirname = len(sys.argv) > 1 and sys.argv[1] or os.getcwd()
-        if os.path.isfile(os.path.join(dirname, "console.ini")):
-            lines = cuars.get_echoes(dirname)
+        if os.path.isfile(os.path.join(dirname, "command.ini")):
+            list = cuars.get_files(dirname, ".m3u")
+            interf.show_badges(list, mark=mark)
+        elif os.path.isfile(os.path.join(dirname, "console.ini")):
+            list = cuars.get_echoes(dirname)
             name = os.path.basename(dirname)
-#            interf.set_font("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 24)
             interf.bd = interf.palette[0]
-            interf.tb = interf.palette[5]
-            interf.name = lines.pop(0)
-            interf.show_text(lines, (1, 2, 3, 4))
+            interf.tb = interf.palette[7]
+            interf.name = list.pop(0)
+            interf.show_text(list, (6, 2, 1, 5))
         else:
-            files = cuars.get_directory(dirname)
-            interf.show_directory(dirname, files)
+            list, shades = cuars.get_directory(dirname)
+            interf.name = dirname
+            interf.show_badges(list, (0, 0), shades)
         # Display image.
         image = interf.image
         display.show(image, 270)
         # Accept input
-        if io.B.value and not io.A.value:  # button 1 pressed
-            mark = (mark+1) % 6
-        if io.A.value and not io.B.value:  # button 2 pressed
-            pass
+        if not io.B.value and not io.A.value:  # both buttons pressed
+            io.backlight.value = not io.backlight.value
+        elif io.B.value and not io.A.value:  # button 1 pressed
+            mark = (mark+1) % len(list)
+        elif io.A.value and not io.B.value:  # button 2 pressed
+            if os.path.isfile(os.path.join(dirname, "command.ini")):
+                files = cuars.get_files(dirname, ".m3u")
+                subprocess.call(["cat", os.path.join(dirname, files[mark])])
         # Wait for refresh
         time.sleep(0.1)
 

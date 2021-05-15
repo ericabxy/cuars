@@ -49,31 +49,16 @@ class Interface():
         else:
             return False
 
-    def show_directory(self, dirname, files, mark=None):
-        """List directory contents in a table
-
-        Color-codes each file according to the palette. Directories are
-        blue. Executables are green. Symbolic links are cyan. Mount
-        points are red.
-        """
-        self.name = os.path.basename(dirname)
-        nodes = []
-        for name in files:
-            path = os.path.join(dirname, name)
-            node = dict(w=100, h=25, text=name, color=self.palette[0])
-            if os.path.islink(path):
-                node.update(bgcolor = self.palette[3])
-            elif os.path.ismount(path):
-                node.update(bgcolor = self.palette[4])
-            elif os.path.isdir(path):
-                node.update(bgcolor = self.palette[1])
-            elif os.access(path, os.X_OK):
-                node.update(bgcolor = self.palette[2])
-            else:
-                node.update(bgcolor = self.palette[7])
-            nodes.append(node)
-        self.nodes = nodes
-        return self.show_table(nodes, mark)
+    def show_badges(self, list, fore=(0, 0), back=(3, 5), mark=None):
+        """Display interactive buttons (badges) in a table."""
+        badges = []
+        for i, line in enumerate(list):
+            fg, bg = fore[i%len(fore)], back[i%len(back)]
+            badges.append({'w': 100, 'h': 25, 'text': line,
+                          'bgcolor': self.palette[bg],
+                          'color': self.palette[fg]})
+        self.nodes = badges
+        return self.show_table(badges, mark)
 
     def show_text(self, list, fore=(3, 5), back=(0, 0)):
         nodes = []
@@ -121,14 +106,30 @@ class Interface():
 
 
 def get_directory(dirname):
-    """Return the unhidden contents of a directory"""
+    """Return the unhidden contents of a directory
+
+    Color-codes each file according to the palette. Directories are
+    blue. Executables are green. Symbolic links are cyan. Mount
+    points are red.
+    """
     files = os.listdir(dirname)
     files.sort()
-    list = []
+    list, shade = [], []
     for name in files:
         if name[0] != ".":
+            path = os.path.join(dirname, name)
             list.append(name)
-    return list
+            if os.path.islink(path):
+                shade.append(3)
+            elif os.path.ismount(path):
+                shade.append(4)
+            elif os.path.isdir(path):
+                shade.append(1)
+            elif os.access(path, os.X_OK):
+                shade.append(2)
+            else:
+                shade.append(7)
+    return list, shade
 
 def get_echoes(dirname):
     """Return the output of shell scripts"""
@@ -144,3 +145,12 @@ def get_echoes(dirname):
             echo = echo.split("\\n'")[0]
             echoes.append(echo)
     return echoes
+
+def get_files(dirname, ext):
+    files = os.listdir(dirname)
+    files.sort()
+    list = []
+    for name in files:
+        if os.path.splitext(name)[1] == ext:
+            list.append(name)
+    return list
