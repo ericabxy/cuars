@@ -19,7 +19,7 @@ along with CUARS.  If not, see <https://www.gnu.org/licenses/>.
 import os
 import subprocess
 
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw, ImageFont, ImageTk
 
 
 class Interface():
@@ -41,6 +41,9 @@ class Interface():
         self.width = width
         self.height = height
         self.padding = 5
+
+    def get_tkimage(self):
+        return ImageTk.PhotoImage(self.image)
 
     def set_font(self, path, size):
         if os.path.exists(path):
