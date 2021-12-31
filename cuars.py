@@ -38,30 +38,51 @@ class Interface():
         self.palette = ("#222222", "#AAAAFF", "#AAFFAA", "#AAFFFF",
                         "#FFAAAA", "#FFAAFF", "#FFFFAA", "#DDDDDD")
         self.bg, self.bd, self.tb = "#222222", "#FFFFAA", "#222222"
+        self.bcolor = (self.palette[3], self.palette[5])
         self.width = width
         self.height = height
+        self.bw, self.bh, self.pad = 100, 25, 5
         self.padding = 5
 
-    def get_tkimage(self):
-        return ImageTk.PhotoImage(self.image)
+    def draw_window(self):
+        left, top, right, bottom = 0, 0, self.width, self.height
+        window = Image.new("RGB", (right, bottom))
+        draw = ImageDraw.Draw(window)
+        draw.rectangle((left, top, right, bottom), outline=self.bd, fill=self.bd)
+        draw.rectangle((left+2, top+22, right, bottom), outline=self.bg, fill=self.bg)
+        return window, draw
+
+    def get_table(self, list, start=0):
+        left, top, right, bottom = 0, 0, self.width, self.height
+#        display = Image.new("RGB", (right, bottom))
+#        draw = ImageDraw.Draw(display)
+        # draw display border
+#        draw.rectangle((left, top, right, bottom), outline=self.bd, fill=self.bd)
+#        draw.rectangle((left+2, top+22, right, bottom), outline=self.bg, fill=self.bg)
+        display, draw = self.draw_window()
+        # draw display title
+        draw.text((left+5, top), self.name, font=self.font, fill=self.bg)
+        # draw pagination numbers
+        z = len(str(len(list)))
+        text = str(start).zfill(z) + "-" + str(len(list)).zfill(z)
+        x = self.width - self.font.getsize(text)[0]
+        draw.rectangle((x-3, top, x-1, top+22), outline=self.tb, fill=self.tb)
+        draw.text((x, top), text, font=self.font, fill=self.tb)
+        # draw badges
+        x, y = self.padding, self.bh
+        for i in range(start, len(list)):
+            text = list[i]
+            color = self.bcolor[i%len(self.bcolor)]
+            rect = (x, y, x+self.bw, y+self.bh)
+            draw.rectangle(rect, outline=color, fill=color)
+            draw.text((x, y), text, font=self.font, fill=self.bg)
+            y = y + self.bh + self.padding
+            if y > bottom:
+                x, y = x + self.bw + self.padding, self.bh
+        return ImageTk.PhotoImage(display)
 
     def set_font(self, path, size):
-        if os.path.exists(path):
-            self.font = ImageFont.truetype(path, size)
-            return True
-        else:
-            return False
-
-    def show_badges(self, list, fore=(0, 0), back=(3, 5), mark=None):
-        """Display interactive buttons (badges) in a table."""
-        badges = []
-        for i, line in enumerate(list):
-            fg, bg = fore[i%len(fore)], back[i%len(back)]
-            badges.append({'w': 100, 'h': 25, 'text': line,
-                          'bgcolor': self.palette[bg],
-                          'color': self.palette[fg]})
-        self.nodes = badges
-        return self.show_table(badges, mark)
+        if os.path.exists(path): self.font = ImageFont.truetype(path, size)
 
     def show_text(self, list, fore=(3, 5), back=(0, 0)):
         nodes = []
@@ -72,40 +93,6 @@ class Interface():
                           'color': self.palette[fg]})
         self.nodes = nodes
         return self.show_table(nodes)
-
-    def show_table(self, badges, mark=None, start=0):
-        left, top, right, bottom = 0, 0, self.width, self.height
-        # Draw the display border and table background
-        rect, color = (left, top, right, bottom), self.bd
-        self.draw.rectangle(rect, outline=color, fill=color)
-        rect, color = (left+2, top+22, right, bottom), self.bg
-        self.draw.rectangle(rect, outline=color, fill=color)
-        # Draw all badges that will fit in the table area
-        i, x, y = start, left+5, 25
-        while i < len(badges) and x < self.width:
-            badge = badges[i]
-            w, h = badge['w'], badge['h']
-            rect, color = (x, y, x+w, y+h), badge['bgcolor']
-            self.draw.rectangle(rect, outline=color, fill=color)
-            text, color = badges[i]['text'].upper(), badge['color']
-            if i == mark:
-                rect = (x+5, y, x+8, y+h)
-                self.draw.rectangle(rect, outline=color, fill=color)
-                self.draw.text((x+10, y), text, font=self.font, fill=color)
-            else:
-                self.draw.text((x, y), text, font=self.font, fill=color)
-            i, y = i+1, y+h+self.padding
-            if y+h > bottom:  # Start next column
-                x, y = x+w+self.padding, 25
-        # Draw title and paging arrows
-        text, color = self.name.upper(), self.tb
-        self.draw.text((left+5, top), text, font=self.font, fill=color)
-        z = len(str(len(badges)))
-        text = str(start).zfill(z) + "-" + str(len(badges)).zfill(z)
-        x = self.width - self.font.getsize(text)[0]
-        self.draw.rectangle((x-3, top, x-1, top+22), outline=color, fill=color)
-        self.draw.text((x, top), text, font=self.font, fill=color)
-        return i
 
 
 def get_directory(dirname):

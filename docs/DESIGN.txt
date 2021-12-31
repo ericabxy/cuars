@@ -1,0 +1,71 @@
+# Command Utility Access/Retrieval System
+
+CUARS takes a list of items and returns a picture of "badges" surrounded 
+by a border that contains information about the list. Its main purpose 
+is to allow for the navigation of a filesystem, display of information, 
+and execution of scripts all within a small and simple hardware 
+interface (a tiny screen with at least two buttons or a touch overlay).
+
+## Interface
+
+The "Interface" is a class representing a virtual display and will 
+render picture images based on the dimensions of that display. Methods 
+prefixed with "set_" configure how the picture will look. Methods 
+prefixed with "get_" immediately render the picture in the desired way 
+and return the image data. The main types of display picture are 
+described as follows.
+
+"get_table" constructs a display with a name in the upper-left and a 
+list of badges in a grid pattern in the main area. It displays list 
+beginning with the "selected" badge all the way to the end of the list. 
+It shows the number of the "selected" badge in the upper-right followed 
+by a hyphen and the total number of badges. This method might not render 
+badges that exceed the size of the display.
+
+"get_text" constructs a display based on a standard text file format 
+starting with the "selected" line number all the way to end-of-file. It 
+displays the name of the text in the upper-left and the number of the 
+"selected" line in the upper-right followed by a hyphen and the total 
+number of lines. This method might not render lines that exceed the size 
+of the display.
+
+## Helper Functions
+
+The function "get_directory" returns a list of files in a directory with 
+color or symbol information for each file. The function "get_echoes" 
+returns a list with the echo output of all the files in a directory. 
+There should be helper functions to facilitate pagination. CUARS should 
+recognize special Python modules
+
+## Navigation
+
+Buttons "1/A" and "2/B" of the hypothetical interface are essentially 
+used as "select" and "start" actions. "select" will advance a pointer 
+through each individual badge on the display and "start" will activate 
+the selected badge. This leaves room for little else, so pagination will 
+have to operate by inserting extra badges into the list so the user can 
+select them, or simply follow the pointer.
+
+A touch screen interface will involve the user simply tapping a badge to 
+activate it or tapping the pagination information to advance the page.
+
+## Activation
+
+Pressing B while selecting a badge should do something useful. If the 
+badge is a directory it should be displayed as a new list of badges. If 
+it is a regular file it should be displayed as information about the 
+file. If it is an executable script it should run.
+
+In any case, the user must be able to return back from the activation. 
+For a file being displayed that can be achieved by pressing B again. For 
+a running script B can terminate the script. While in a directory the 
+user must be able to go "up" in the tree (by selecting a special "up" or 
+".." badge or by pressing A and B simultaneously?).
+
+## Security
+
+For security users can be locked out of sensitive parts of the 
+filesystem by limiting them to subdirectories of a specified root 
+directory. Furthermore, CUARS can be invoked without the ability to 
+execute any executables. CUARS should be run as a user and not as a 
+superuser so that privilages can be enforced on the console.

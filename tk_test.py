@@ -1,22 +1,21 @@
 import os
-import subprocess
 import sys
-import tempfile
 
 import tkinter as tk
 
 import cuars
 
-# Figure out which directory we're gonna show
+# Determine which directory to show
 if len(sys.argv) > 1 and os.path.isdir(sys.argv[1]):
     dirname = sys.argv[1]
 else:
     dirname = os.getcwd()
 
-interf = cuars.Interface(200, 150)
-mark = 0
+interf = cuars.Interface(300, 200)
+mark = -1
 
 window = tk.Tk()
+window.title("CUARS")
 canvas = tk.Canvas(window)
 canvas.pack()
 def refresh():
@@ -24,8 +23,7 @@ def refresh():
     list, shades = cuars.get_directory(dirname)
     mark = (mark+1)%len(list)
     interf.name = os.path.basename(dirname)
-    interf.show_badges(list, (0, 0), shades, mark)
-    image = interf.get_tkimage()
+    image = interf.get_table(list, mark)
     canvas.create_image((0, 0), anchor=tk.NW, image=image)
 refresh()
 
