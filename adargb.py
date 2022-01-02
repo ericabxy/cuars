@@ -13,16 +13,16 @@ import cuars
 def main():
     io = BoardIO()
     display = Display(135, 240)
-    interf = cuars.Interface(240, 135)
+    interf = cuars.Table(240, 135)
     mark = -1
     print("Interface should appear on the RGB display now")
     while True:
         dirname = len(sys.argv) > 1 and sys.argv[1] or os.getcwd()
         if os.path.isfile(os.path.join(dirname, "command.ini")):
-            list = cuars.get_files(dirname, ".m3u")
+            list = files(dirname, ".m3u")
             interf.show_badges(list, mark=mark)
         elif os.path.isfile(os.path.join(dirname, "console.ini")):
-            list = cuars.get_echoes(dirname)
+            list = echoes(dirname)
             name = os.path.basename(dirname)
             interf.bd = interf.palette[0]
             interf.tb = interf.palette[7]
@@ -91,6 +91,30 @@ class Display():
     def show(self, image, rotation):
         self.disp.image(image, rotation)
 
+
+def echoes(dirname):
+    """Return the output of shell scripts"""
+    files = os.listdir(dirname)
+    files.sort()
+    echoes = []
+    for name in files:
+        path = os.path.join(dirname, name)
+        if (os.path.splitext(path)[1] in (".bat", ".cmd", ".sh")
+                and os.access(path, os.X_OK)):
+            echo = str(subprocess.check_output(path))
+            echo = echo.split("b'")[1]
+            echo = echo.split("\\n'")[0]
+            echoes.append(echo)
+    return echoes
+
+def get_files(dirname, ext):
+    files = os.listdir(dirname)
+    files.sort()
+    list = []
+    for name in files:
+        if os.path.splitext(name)[1] == ext:
+            list.append(name)
+    return list
 
 if __name__ == "__main__":
     try:
