@@ -1,5 +1,6 @@
 import math
 import os
+import platform
 import sys
 import time
 
@@ -10,9 +11,82 @@ import cuars
 """
 TODO: depending on whether a directory, a text file, or an image file
 is supplied as a command-line argument, set up the correct display
+TODO: if in directory mode, navigate through directories on B press
+TODO: option to show login information
+TODO: option to show system information
+TODO: this is really messy, too many globals and confusion
+TODO: write "Table.slice" to return slice info for the list
+TODO: allow "index" to value "None" until "A" pressed
+TODO: "Table.newwindow" pager rect must fill area
+Paths and files are named after os.path functions
 """
 
+# print some system information
+print("Operating System: " + platform.system())
+print("Network Name: " + platform.node())
+print("Release: " + platform.release())
+print("Version: " + platform.version())
+print("Machine Type: " + platform.machine())
+print("Processor: " + platform.processor())
+
+# initialize directory navigation variables
+index = 0
+dirname = os.path.expanduser("~")
+dirlist = os.listdir(dirname)
+print("User: " + os.getlogin())
+print("Directory: " + dirname)
+
+# initialize the display object
+interf = cuars.Table(250, 150)
+
+# callbacks for tkinter widgets
+def do_button1():  # advance file index by 1 and loop
+    global dirlist, dirname, index
+    index = (index+1)%(len(dirlist)+1)
+    print(dirname, dirlist[index])
+    show_table(dirname, dirlist, index)
+
+def do_button2():
+    global dirlist, dirname, index
+    print(dirname, dirlist[index])
+    name = dirlist[index]
+    path = os.path.join(dirname, name)
+    if os.path.isdir(path):
+        dirname, index = path, 0
+        dirlist = os.listdir(dirname)
+        show_table(dirname, dirlist, index)
+
+def do_button1and2(path="~"):
+    global dirlist, dirname, index
+    index = 0
+    dirname = os.path.expanduser(path)
+    dirlist = os.listdir(dirname)
+    show_table(dirname, dirlist, index)
+
+def do_expand():
+    pass
+
+def do_screenshot():
+    pass
+
+# setup a basic Tkinter window
+root = tk.Tk()
+root.title("CUARS")
+canvas = tk.Canvas(root)
+btn_a = tk.Button(root, text="A", command=do_button1)
+btn_b = tk.Button(root, text="B", command=do_button2)
+btn_s = tk.Button(root, text="screenshot", command=do_screenshot)
+btn_ab = tk.Button(root, text="A+B", command=do_button1and2)
+btn_a.pack(side=tk.TOP)
+btn_b.pack(side=tk.TOP)
+btn_ab.pack(side=tk.TOP)
+btn_s.pack(side=tk.BOTTOM)
+canvas.pack()
+
 def colorize(root, files, tags={}):
+    """Return a color-coded list from a list of files
+
+    Optional 'tags' dictionary codes list based on extensions"""
     colors = []
     for name in files:
         path = os.path.join(dirname, name)
@@ -25,30 +99,24 @@ def colorize(root, files, tags={}):
         else: colors.append(7)
     return colors
 
-def show_table(list):
-    global dirlist, image, index
-    interf.name = os.path.basename(dirname)
-    interf.set_pager(index+1, len(dirlist))
-    list, mark = interf.crop_list(list, index)
-    interf.set_pattern(colorize(dirname, list))
-    interf.mark = mark
-    image = interf.get_render(list)
+def show_table(root, list, mark):
+    global image
+    interf.name = os.path.split(dirname)[1]
+    interf.set_pager(mark+1, len(list))
+    s = interf.slice(list, mark)
+#    interf.set_pattern(colorize(root, list))
+    interf.set_list(list[s:], colorize(root, list[s:]))
+    interf.mark = mark-s
+    interf.render()
+    image = interf.get_tkimage()
     canvas.create_image((0, 0), anchor=tk.NW, image=image)
 
-def button1():
-    global index
-    list = os.listdir(dirname)
-    shades = colorize(dirname, list)
-    index = (index+1)%len(list)
-    show_table(list)
-
-def button2():
-    name = dirlist[index]
-    path = os.path.join(dirname, name)
+def fileinfo(path):
     info = os.stat(path)
     print("")
     print("Dirname: " + os.path.dirname(path))
-    print(str(index+1) + " of N " + " Filename: " + os.path.basename(path))
+    print("File " + str(index+1) + " of N")
+    print("Filename: " + os.path.basename(path))
     print("Realpath: " + os.path.realpath(path))
     print("Mode: " + str(info.st_mode))
     print("Links: " + str(info.st_nlink))
@@ -57,33 +125,9 @@ def button2():
     print("Size: " + str(info.st_size))
     print("Accessed: " + time.ctime(info.st_atime))
     print("Modified: " + time.ctime(info.st_mtime))
-#    print("Created: " + time.ctime(info.st_ctime))
     print("Working: " + os.getcwd())
 
-def screenshot():
-    pass
-
-# setup a basic Tkinter window
-root = tk.Tk()
-root.title("CUARS")
-canvas = tk.Canvas(root)
-btn_a = tk.Button(root, text="A", command=button1)
-btn_b = tk.Button(root, text="B", command=button2)
-btn_s = tk.Button(root, text="SHOT", command=screenshot)
-btn_a.pack(side=tk.LEFT)
-btn_b.pack(side=tk.LEFT)
-btn_s.pack(side=tk.LEFT)
-canvas.pack()
-
-# Determine which directory to show
-if len(sys.argv) > 1 and os.path.isdir(sys.argv[1]): dirname = sys.argv[1]
-else: dirname = os.getcwd()
-
-interf = cuars.Table(250, 150)
-dirlist = os.listdir(dirname)
-index = 0
-
-show_table(dirlist)
+show_table(dirname, dirlist, index)
 
 # startup the TK interface
 root.mainloop()

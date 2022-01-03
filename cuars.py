@@ -36,7 +36,7 @@ class Table():
         self.font = ImageFont.truetype(path, 22)
         self.image = Image.new("RGB", (width, height))
         self.draw = ImageDraw.Draw(self.image)
-        self.name = "CUARS"
+        self.name = "CUARS Table"
         self.pager = "0000"
         self.mark = None
         self.set_palette()
@@ -48,17 +48,7 @@ class Table():
         self.left, self.top = 5, 25
         self.space = 5
 
-    def crop_list(self, list, mark):
-        page_height = self.height - self.bh  # height of badge area
-        badge_height = self.bh + self.space  # height of badge
-        page = math.floor(page_height/badge_height)  # badges per page
-        while mark >= page:
-            for i in range(page):
-                list.pop(0)
-                mark = mark - 1
-        return list, mark
-
-    def get_render(self, list):
+    def render(self):
         """Render a display with a grid of interactive buttons
 
         Work-in-progress: still determining scope and brevity.
@@ -66,11 +56,11 @@ class Table():
         Mark: can only "mark" a badge on the left side?
         """
         left, top, right, bottom = 0, 0, self.width, self.height
-        display, draw = self.new_window()
+        self.image, draw = self.new_window()
         # draw badges
         x, y = self.left + self.space, self.top + self.space
         rects = []
-        for i, text in enumerate(list):
+        for i, text in enumerate(self.list):
             color = self.palette[self.pattern[i%len(self.pattern)]]
             rect = (x, y, x+self.bw, y+self.bh)
             draw.rounded_rectangle(rect, outline=color, fill=color, radius=1)
@@ -80,7 +70,16 @@ class Table():
             if y+self.bh > bottom:
                 x = x + self.bw + self.space
                 y = self.top + self.space
-        return ImageTk.PhotoImage(display)
+
+    def slice(self, list, mark):
+        page_height = self.height - self.bh  # height of badge area
+        badge_height = self.bh + self.space  # height of badge
+        page = math.floor(page_height/badge_height)  # badges per page
+        slicer = math.floor(mark / page) * page
+        return slicer
+
+    def get_tkimage(self):
+        return ImageTk.PhotoImage(self.image)
 
     def new_window(self):
         window = Image.new("RGB", (self.width, self.height))
@@ -142,19 +141,18 @@ class Table():
     def set_pattern(self, colors=(1, 2)):
         self.pattern = colors
 
+    def set_list(self, list, colors=(1, 2)):
+        self.list = list
+        self.pattern = colors
+
 class Text():
     def __init__(self, width, height):
-        """Create a display area from specified dimensions
-
-        This area will have a frame itentifying its utility and space
-        for displaying each command as a badge.
-        """
         basedir = os.path.dirname(__file__)
         path = os.path.join(basedir, "fonts", "BebasNeue.otf")
         self.font = ImageFont.truetype(path, 22)
         self.image = Image.new("RGB", (width, height))
         self.draw = ImageDraw.Draw(self.image)
-        self.name = "CUARS"
+        self.name = "CUARS Text"
         self.pager = "0000"
         self.mark = None
         self.set_palette()
