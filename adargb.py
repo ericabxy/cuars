@@ -14,7 +14,7 @@ def main():
     io = BoardIO()
     display = Display(135, 240)
     interf = cuars.Table(240, 135)
-    mark = -1
+    mark = 0
     print("Interface should appear on the RGB display now")
     while True:
         dirname = len(sys.argv) > 1 and sys.argv[1] or os.getcwd()
