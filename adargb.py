@@ -1,60 +1,10 @@
 #!/usr/bin/env python3
 import os
-import sys
 import subprocess
-import time
 
 import digitalio
 import board
 import adafruit_rgb_display.st7789 as st7789
-
-import cuars
-
-dirname = len(sys.argv) > 1 and sys.argv[1] or os.getcwd()
-
-def main():
-    global dirname
-    io = BoardIO()
-    display = Display(135, 240)
-    interf = cuars.Table(240, 135)
-    mark = 0
-    print("Interface should appear on the RGB display now")
-    while True:
-        if os.path.isfile(os.path.join(dirname, "command.ini")):
-            dirlist = files(dirname, ".m3u")
-            interf.show_badges(dirlist, mark=mark)
-        elif os.path.isfile(os.path.join(dirname, "console.ini")):
-            dirlist = echoes(dirname)
-            name = os.path.basename(dirname)
-            interf.bd = interf.palette[0]
-            interf.tb = interf.palette[7]
-            interf.name = dirlist.pop(0)
-            interf.show_text(dirlist, (6, 2, 1, 5))
-        else:
-            dirlist = os.listdir(dirname)
-            s = interf.slice(dirlist, mark)
-            interf.set_list(dirlist[s:])
-            interf.name = os.path.basename(dirname)
-            interf.mark = mark-s
-            interf.set_pager(mark+1, len(dirlist))
-            interf.render()
-        # Display image.
-        image = interf.image
-        display.show(image, 90)
-        # Accept input
-        if not io.B.value and not io.A.value:  # both buttons pressed
-            io.backlight.value = not io.backlight.value
-        elif io.B.value and not io.A.value:  # button 1 pressed
-            mark = (mark+1) % len(dirlist)
-        elif io.A.value and not io.B.value:  # button 2 pressed
-            selected = os.path.join(dirname, dirlist[mark])
-            if os.path.isdir(selected):
-                mark = 0
-                dirname = selected
-            print("cd: " + dirname)
-        # Wait for refresh
-        time.sleep(0.1)
-
 
 class BoardIO():
     def __init__(self):
@@ -123,10 +73,3 @@ def get_files(dirname, ext):
         if os.path.splitext(name)[1] == ext:
             list.append(name)
     return list
-
-if __name__ == "__main__":
-    try:
-        main()
-    except KeyboardInterrupt:
-        print("Keyboard Interrupt (Control-C)...")
-    sys.exit()

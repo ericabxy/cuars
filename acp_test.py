@@ -15,17 +15,19 @@ import cuars
 
 io = adargb.BoardIO()
 display = adargb.Display(135, 240)
+interf = cuars.Table(240, 135)
 
 def main():
-    interf = cuars.Table(240, 135)
     mark = 0
     print("Interface should appear on the RGB display now")
     while True:
         dirname = os.getcwd()
         if os.path.isdir(dirname):
             dirlist = os.listdir(dirname)
+            pattern = colorize(dirname, dirlist)
             s = interf.slice(dirlist, mark)
             interf.set_list(dirlist[s:])
+            interf.set_pattern(pattern[s:])
             interf.name = os.path.basename(dirname)
             interf.mark = mark-s
             interf.set_pager(mark+1, len(dirlist))
@@ -46,9 +48,37 @@ def main():
                 os.chdir(path)
                 mark = 0
             else:
-                print("not a directory: " + path)
+                print("\nFile " + str(mark+1) + " of " + str(len(dirlist)))
+                fileinfo(path)
         # Wait for refresh
         time.sleep(0.1)
+
+def colorize(root, files):
+    """Return a color codes from a list of files"""
+    colors = []
+    for name in files:
+        path = os.path.join(root, name)
+        if os.path.islink(path): colors.append(3)
+        elif os.path.ismount(path): colors.append(4)
+        elif os.path.isdir(path): colors.append(1)
+        elif os.access(path, os.X_OK): colors.append(2)
+        else: colors.append(7)
+    return colors
+
+def fileinfo(path):
+    info = os.stat(path)
+    print("Dirname: " + os.path.dirname(path))
+    print("Basename: " + os.path.basename(path))
+    print("Realpath: " + os.path.realpath(path))
+    print("Stat")
+    print("  Mode: " + str(info.st_mode))
+    print("  Links: " + str(info.st_nlink))
+    print("  User: " + str(info.st_uid))
+    print("  Group: " + str(info.st_gid))
+    print("  Size: " + str(info.st_size))
+    print("  Accessed: " + time.ctime(info.st_atime))
+    print("  Modified: " + time.ctime(info.st_mtime))
+    print("Working: " + os.getcwd())
 
 if __name__ == "__main__":
     try:

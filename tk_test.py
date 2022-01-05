@@ -5,7 +5,6 @@ screenshots of the display). Python modules 'os' and 'sys' are used to
 perform basic navigation and operations. Note that much of this basic
 functionality should eventually be moved to CUARS submodules.
 """
-import math
 import os
 import sys
 import time
@@ -91,7 +90,7 @@ def colorize(root, files, tags={}):
     Optional 'tags' dictionary codes list based on extensions"""
     colors = []
     for name in files:
-        path = os.path.join(dirname, name)
+        path = os.path.join(root, name)
         if os.path.islink(path): colors.append(3)
         elif os.path.ismount(path): colors.append(4)
         elif os.path.isdir(path): colors.append(1)
@@ -115,9 +114,11 @@ def show_table(root, list, mark):
 
 def fileinfo(path):
     info = os.stat(path)
+    dir = os.path.dirname(path)
+    list = os.path.listdir(dir)
     print("")
     print("Dirname: " + os.path.dirname(path))
-    print("File " + str(index+1) + " of N")
+    print("File " + str(index+1) + " of " + len(list))
     print("Filename: " + os.path.basename(path))
     print("Realpath: " + os.path.realpath(path))
     print("Mode: " + str(info.st_mode))
@@ -128,6 +129,8 @@ def fileinfo(path):
     print("Accessed: " + time.ctime(info.st_atime))
     print("Modified: " + time.ctime(info.st_mtime))
     print("Working: " + os.getcwd())
+
+fileinfo(dirname)
 
 show_table(dirname, dirlist, index)
 
