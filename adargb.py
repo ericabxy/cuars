@@ -10,40 +10,48 @@ import adafruit_rgb_display.st7789 as st7789
 
 import cuars
 
+dirname = len(sys.argv) > 1 and sys.argv[1] or os.getcwd()
+
 def main():
+    global dirname
     io = BoardIO()
     display = Display(135, 240)
     interf = cuars.Table(240, 135)
     mark = 0
     print("Interface should appear on the RGB display now")
     while True:
-        dirname = len(sys.argv) > 1 and sys.argv[1] or os.getcwd()
         if os.path.isfile(os.path.join(dirname, "command.ini")):
-            list = files(dirname, ".m3u")
-            interf.show_badges(list, mark=mark)
+            dirlist = files(dirname, ".m3u")
+            interf.show_badges(dirlist, mark=mark)
         elif os.path.isfile(os.path.join(dirname, "console.ini")):
-            list = echoes(dirname)
+            dirlist = echoes(dirname)
             name = os.path.basename(dirname)
             interf.bd = interf.palette[0]
             interf.tb = interf.palette[7]
-            interf.name = list.pop(0)
-            interf.show_text(list, (6, 2, 1, 5))
+            interf.name = dirlist.pop(0)
+            interf.show_text(dirlist, (6, 2, 1, 5))
         else:
-            list, shades = cuars.get_directory(dirname)
-            interf.name = dirname
-            interf.show_badges(list, (0, 0), shades)
+            dirlist = os.listdir(dirname)
+            s = interf.slice(dirlist, mark)
+            interf.set_list(dirlist[s:])
+            interf.name = os.path.basename(dirname)
+            interf.mark = mark-s
+            interf.set_pager(mark+1, len(dirlist))
+            interf.render()
         # Display image.
         image = interf.image
-        display.show(image, 270)
+        display.show(image, 90)
         # Accept input
         if not io.B.value and not io.A.value:  # both buttons pressed
             io.backlight.value = not io.backlight.value
         elif io.B.value and not io.A.value:  # button 1 pressed
-            mark = (mark+1) % len(list)
+            mark = (mark+1) % len(dirlist)
         elif io.A.value and not io.B.value:  # button 2 pressed
-            if os.path.isfile(os.path.join(dirname, "command.ini")):
-                files = cuars.get_files(dirname, ".m3u")
-                subprocess.call(["cat", os.path.join(dirname, files[mark])])
+            selected = os.path.join(dirname, dirlist[mark])
+            if os.path.isdir(selected):
+                mark = 0
+                dirname = selected
+            print("cd: " + dirname)
         # Wait for refresh
         time.sleep(0.1)
 

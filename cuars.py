@@ -18,12 +18,9 @@ along with CUARS.  If not, see <https://www.gnu.org/licenses/>.
 """
 import math
 import os
-import subprocess
+# TODO: shouldn't need the "os" module
+from PIL import Image, ImageDraw, ImageFont
 
-from PIL import Image, ImageDraw, ImageFont, ImageTk
-
-# TODO: split "Interface" into distinct types
-# This will be called "Table" or "BadgeTable"
 class Table():
     def __init__(self, width, height):
         """Create a display area from specified dimensions
@@ -63,7 +60,7 @@ class Table():
         for i, text in enumerate(self.list):
             color = self.palette[self.pattern[i%len(self.pattern)]]
             rect = (x, y, x+self.bw, y+self.bh)
-            draw.rounded_rectangle(rect, outline=color, fill=color, radius=1)
+            draw.rectangle(rect, outline=color, fill=color)
             draw.text((x, y), text, font=self.font, fill=self.color[0])
             rects.append(rect)  # dimensions for touchscreen
             y = y + self.bh + self.space
@@ -79,22 +76,25 @@ class Table():
         return slicer
 
     def get_tkimage(self):
+        # TODO: this file should not require Tk
         return ImageTk.PhotoImage(self.image)
 
     def new_window(self):
         window = Image.new("RGB", (self.width, self.height))
         draw = ImageDraw.Draw(window)
         # border (minimal to allow room for badges)
-        draw.rounded_rectangle((0, 0, self.width, self.height),
-          radius=3, outline=self.color[3], fill=self.color[3])
-        draw.rounded_rectangle(
+        draw.rectangle((0, 0, self.width, self.height),
+          outline=self.color[3], fill=self.color[3])
+        draw.rectangle(
           (self.left, self.top, self.width, self.height),
-          radius=3, outline=self.color[0], fill=self.color[0])
+          outline=self.color[0], fill=self.color[0])
         # title (upper-left)
         draw.text((self.left, 0), self.name, font=self.font,
           fill=self.palette[0])
         # pager (upper-right)
         x = self.width - self.font.getsize(self.pager)[0]
+        draw.rectangle((x-5, 0, self.width, self.top-1),
+          outline=self.color[3], fill=self.color[3])
         draw.rectangle((x-3, 0, x-1, self.top),
           outline=self.color[0], fill=self.color[0])
         draw.text((x, 0), self.pager, font=self.font, fill=self.color[0])

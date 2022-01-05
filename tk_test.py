@@ -1,6 +1,12 @@
+"""
+A basic demonstration of CUARS using Tkinter to show the display on a
+canvas. Emulates a two-button interface (TODO: also a button to take
+screenshots of the display). Python modules 'os' and 'sys' are used to
+perform basic navigation and operations. Note that much of this basic
+functionality should eventually be moved to CUARS submodules.
+"""
 import math
 import os
-import platform
 import sys
 import time
 
@@ -11,23 +17,19 @@ import cuars
 """
 TODO: depending on whether a directory, a text file, or an image file
 is supplied as a command-line argument, set up the correct display
-TODO: if in directory mode, navigate through directories on B press
 TODO: option to show login information
 TODO: option to show system information
 TODO: this is really messy, too many globals and confusion
-TODO: write "Table.slice" to return slice info for the list
 TODO: allow "index" to value "None" until "A" pressed
 TODO: "Table.newwindow" pager rect must fill area
 Paths and files are named after os.path functions
 """
 
-# print some system information
-print("Operating System: " + platform.system())
-print("Network Name: " + platform.node())
-print("Release: " + platform.release())
-print("Version: " + platform.version())
-print("Machine Type: " + platform.machine())
-print("Processor: " + platform.processor())
+# print some login information
+print("Login: " + os.getlogin())
+print("Current Working Directory: " + os.getcwd())
+print("Process ID: " + os.getpid())
+print("Times: ", os.times())
 
 # initialize directory navigation variables
 index = 0

@@ -18,9 +18,23 @@ Milestone goals are as follows.
 - choose text files from the interface and display for reading
 - choose script files from the interface in order to launch, background, 
   and terminate processes
-- choose special python modules to display custom data
+- choose special python modules to custom displays of data
 
-# Requirements
+## Concept
+
+CUARS uses standard Python libraries to navigate a filesystem and 
+retrieve information about the files, computer, user, and processes. 
+Functions that are not cross-platform are avoided. CUARS is meant to be 
+a new kind of visual command interface; like a virtual terminal but 
+without a keyboard.
+
+Functionality beyond basic file navigation and operation is provided by 
+scripts or modules designed to interact without requiring keyboard 
+input. These files must start programs in the background and relay 
+information to CUARS for display, accept input via buttons pressed in 
+the CUARS interface, and terminate when told to.
+
+## Requirements
 
 Requirements are still being worked out. Initially designed for a PiTFT 
 display from Adafruit and their libraries. Requirement info below is 
