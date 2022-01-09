@@ -36,9 +36,9 @@ class Table():
         self.name = "CUARS Table"
         self.pager = "0000"
         self.mark = None
-        self.set_palette()
-        self.set_pattern()
         self.set_colors()
+        self.set_colors()
+        self.set_pattern()
         self.width = width
         self.height = height
         self.bw, self.bh = 100, 25
@@ -58,7 +58,7 @@ class Table():
         x, y = self.left + self.space, self.top + self.space
         rects = []
         for i, text in enumerate(self.list):
-            color = self.palette[self.pattern[i%len(self.pattern)]]
+            color = self.color[self.pattern[i%len(self.pattern)]]
             rect = (x, y, x+self.bw, y+self.bh)
             draw.rectangle(rect, outline=color, fill=color)
             draw.text((x, y), text, font=self.font, fill=self.color[0])
@@ -84,17 +84,17 @@ class Table():
         draw = ImageDraw.Draw(window)
         # border (minimal to allow room for badges)
         draw.rectangle((0, 0, self.width, self.height),
-          outline=self.color[3], fill=self.color[3])
+          outline=self.color[7], fill=self.color[7])
         draw.rectangle(
           (self.left, self.top, self.width, self.height),
           outline=self.color[0], fill=self.color[0])
         # title (upper-left)
         draw.text((self.left, 0), self.name, font=self.font,
-          fill=self.palette[0])
+          fill=self.color[0])
         # pager (upper-right)
         x = self.width - self.font.getsize(self.pager)[0]
         draw.rectangle((x-5, 0, self.width, self.top-1),
-          outline=self.color[3], fill=self.color[3])
+          outline=self.color[7], fill=self.color[7])
         draw.rectangle((x-3, 0, x-1, self.top),
           outline=self.color[0], fill=self.color[0])
         draw.text((x, 0), self.pager, font=self.font, fill=self.color[0])
@@ -105,7 +105,7 @@ class Table():
             draw.rectangle((0, y - 3, self.left, y + self.bh + 3),
               outline=self.color[0], fill=self.color[0])
             draw.rectangle((0, y, self.left, y + self.bh),
-              outline=self.color[3], fill=self.color[3])
+              outline=self.color[7], fill=self.color[7])
         return window, draw
 
     def pagelen(self):
@@ -113,11 +113,6 @@ class Table():
         badge_height = self.bh + self.space
         page_badges = math.ceil(page_height / badge_height)
         return page_badges
-
-    def set_colors(self, a=0, b=2, c=4, d=6):
-        """Define a four-color subset of the overall palette"""
-        self.color = (self.palette[a], self.palette[b], self.palette[c],
-          self.palette[d])
 
     def set_font(self, path, size):
         if os.path.exists(path): self.font = ImageFont.truetype(path, size)
@@ -130,18 +125,18 @@ class Table():
         else:
             self.pager = str(total).zfill(z)
 
-    def set_palette(self, palette=None):
+    def set_colors(self, palette=None):
         """Define an eight-color palette"""
         if palette:
-            self.palette = palette
+            self.color = palette
         else:
-            self.palette = ("#222222", "#AAAAFF", "#AAFFAA", "#AAFFFF",
-                            "#FFAAAA", "#FFAAFF", "#FFFFAA", "#DDDDDD")
+            self.color = ("#000000", "#5555FF", "#55FF55", "#55FFFF",
+                          "#FF5555", "#FF55FF", "#FFFF55", "#FFFFFF")
 
-    def set_pattern(self, colors=(1, 2)):
+    def set_pattern(self, colors=(3, 5)):
         self.pattern = colors
 
-    def set_list(self, list, colors=(1, 2)):
+    def set_list(self, list, colors=(3, 5)):
         self.list = list
         self.pattern = colors
 
@@ -155,7 +150,7 @@ class Text():
         self.name = "CUARS Text"
         self.pager = "0000"
         self.mark = None
-        self.set_palette()
+        self.set_colors()
         self.set_pattern()
         self.set_colors()
         self.width = width
@@ -169,8 +164,8 @@ class Text():
         for i, line in enumerate(list):
             fg, bg = fore[i%len(fore)], back[i%len(back)]
             nodes.append({'w': 250, 'h': 22, 'text': line,
-                          'bgcolor': self.palette[bg],
-                          'color': self.palette[fg]})
+                          'bgcolor': self.color[bg],
+                          'color': self.color[fg]})
         self.nodes = nodes
         return self.show_table(nodes)
 
@@ -179,15 +174,15 @@ class Text():
 Solarize = ("#2D2D2D", "#268BD2", "#859900", "#2AA198",
             "#DC322F", "#D33682", "#B58900", "#EEE8D5")
 # based on four-color CGA modes
-Quadro_A = ("#222222", "#5555AA", "#55AA55", "#DDDDDD",
-            "#DDDDDD", "#DDDDDD", "#DDDDDD", "#DDDDDD")
-Quadro_B = ("#222222", "#55AAAA", "#AA55AA", "#DDDDDD",
-            "#DDDDDD", "#DDDDDD", "#DDDDDD", "#DDDDDD")
+Quadro_A = ("#000000", "#FF55FF", "#FF5555", "#FF55FF",
+            "#FF5555", "#FF55FF", "#FF5555", "#FFFF55")
+Quadro_B = ("#000000", "#55FFFF", "#FF55FF", "#55FFFF",
+            "#FF55FF", "#55FFFF", "#FF55FF", "#FFFFFF")
 # based on TWM color schemes
 Tabman_A = ("#B03060", "#22AA99", "#22AA99", "#D9D9D9",
             "#D9D9D9", "#D9D9D9", "#D9D9D9", "#D9D9D9")
 Tabman_B = ("#708090", "#22AA99", "#B03060", "#D9D9D9",
             "#D9D9D9", "#D9D9D9", "#D9D9D9", "#D9D9D9")
-# based on part of the EGA palette
-Enhanced = ("#222222", "#AAAAFF", "#AAFFAA", "#AAFFFF",
-            "#FFAAAA", "#FFAAFF", "#FFFFAA", "#DDDDDD")
+# based on the EGA palette (0, 15, 23, 31, 39, 47, 55, 63)
+Enhanced = ("#000000", "#AAAAFF", "#AAFFAA", "#AAFFFF",
+            "#FFAAAA", "#FFAAFF", "#FFFFAA", "#FFFFFF")

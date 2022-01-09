@@ -1,0 +1,55 @@
+## Naming
+
+Things that are a part of the CUARS system should be called CU* 
+for clarity.
+
+## Displays
+
+A CU_Display is a Python class that renders data in a particular 
+way to a screen-like image. Four display types have been 
+conceptualized for CUARS.
+
+Table: a list of selectable objects, like files on a filesystem
+Text: line-by-line display of a plain text file
+Bin: hexadecimal display of a binary file
+Active: combined display of data with customized controls
+
+## Modules
+
+Specialized Python submodules can be used to set up a custom 
+display. A CU_Module has the following properties.
+
+Lines: an itemized list of current data
+Controls: an itemized list of controls that change State
+State: internal conditions that determine Lines and Controls
+
+Submodules should behave similarly to the Python "os" module, 
+which interacts with the host system and provides access to useful 
+values like CWD and can list the contents of a directory.
+
+## FILE TYPES
+
+How does the CUARS system know what type of file something is and 
+how to handle it? Thanks to Python, CUARS knows if a file is a 
+directory, a symlink, a mountpoint, or a regular file. It also 
+knows if its executable, readable, or writeable. Beyond these 
+properties CUARS must depend on filename extensions.
+
+CUARS is a very basic system and relies mostly on Python libraries 
+for its features. Thus CUARS isn't e.g. a music player or an image 
+editor. It only cares if a file is something it can pass to 
+os.chdir or otherwise something it can read as "text" or "binary" 
+information (hence the "Text" and "Bin" display types).
+
+CUARS should probably just try to open and display any file that 
+the user selects as either text or binary information, with text 
+as the default because that's how Python's "open" function works. 
+Using the ".txt" and ".bin" filename extensions to determine 
+behavior is also possible. Expanding on that the ".exe" extension 
+is another possible indicator of handling, but is unneeded since 
+we can see if a file is executable.
+
+## Intentional Limits
+
+It may be useful to limit the abilities of CUARS that are derived 
+from Python to things that are also a part of the C backend.

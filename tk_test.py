@@ -1,33 +1,32 @@
 """
 A basic demonstration of CUARS using Tkinter to show the display on a
-canvas. Emulates a two-button interface (TODO: also a button to take
-screenshots of the display). Python modules 'os' and 'sys' are used to
-perform basic navigation and operations. Note that much of this basic
-functionality should eventually be moved to CUARS submodules.
+canvas. Emulates a two-button interface. Python modules 'os' and 'sys'
+are used to perform basic navigation and operations. Note that much of
+this basic functionality should eventually be moved to CUARS submodules.
 """
+import datetime
 import os
+import re
 import sys
 import time
 
 import tkinter as tk
+from PIL import ImageTk
 
 import cuars
 
 """
 TODO: depending on whether a directory, a text file, or an image file
 is supplied as a command-line argument, set up the correct display
-TODO: option to show login information
-TODO: option to show system information
+TODO: determine if file is text-encoded before opening
 TODO: this is really messy, too many globals and confusion
 TODO: allow "index" to value "None" until "A" pressed
-TODO: "Table.newwindow" pager rect must fill area
-Paths and files are named after os.path functions
 """
 
 # print some login information
 print("Login: " + os.getlogin())
 print("Current Working Directory: " + os.getcwd())
-print("Process ID: " + os.getpid())
+print("Process ID: " + str(os.getpid()))
 print("Times: ", os.times())
 
 # initialize directory navigation variables
@@ -56,6 +55,10 @@ def do_button2():
         dirname, index = path, 0
         dirlist = os.listdir(dirname)
         show_table(dirname, dirlist, index)
+    elif os.access(path, os.R_OK):
+        file = open(path)
+        print(file.read())
+        file.close()
 
 def do_button1and2(path="~"):
     global dirlist, dirname, index
@@ -68,7 +71,10 @@ def do_expand():
     pass
 
 def do_screenshot():
-    pass
+    isotime = datetime.datetime.now().replace(microsecond=0).isoformat()
+    filename = "".join(re.split("-|T|:", isotime)) + ".example.png"
+    interf.image.save(filename)
+    print("cuars: saved screenshot to " + filename)
 
 # setup a basic Tkinter window
 root = tk.Tk()
@@ -105,20 +111,15 @@ def show_table(root, list, mark):
     interf.name = os.path.split(dirname)[1]
     interf.set_pager(mark+1, len(list))
     s = interf.slice(list, mark)
-#    interf.set_pattern(colorize(root, list))
-    interf.set_list(list[s:], colorize(root, list[s:]))
+    interf.set_list(list[s:]) #, colorize(root, list[s:]))
     interf.mark = mark-s
     interf.render()
-    image = interf.get_tkimage()
+    image = ImageTk.PhotoImage(interf.image)
     canvas.create_image((0, 0), anchor=tk.NW, image=image)
 
 def fileinfo(path):
     info = os.stat(path)
-    dir = os.path.dirname(path)
-    list = os.path.listdir(dir)
-    print("")
     print("Dirname: " + os.path.dirname(path))
-    print("File " + str(index+1) + " of " + len(list))
     print("Filename: " + os.path.basename(path))
     print("Realpath: " + os.path.realpath(path))
     print("Mode: " + str(info.st_mode))

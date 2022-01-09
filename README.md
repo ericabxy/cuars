@@ -13,12 +13,11 @@ information, a large area to display requested data, and touchable
 
 Milestone goals are as follows.
 
-- freely navigate an entire directory structure starting at a specified 
-  "root" directory
-- choose text files from the interface and display for reading
-- choose script files from the interface in order to launch, background, 
-  and terminate processes
-- choose special python modules to custom displays of data
+- navigate an entire file structure using the "Table" display
+- read any text file with the "Text" display
+- display the contents of any binary file with the "Bin" display
+- launch, background, and terminate executable script files
+- run special python modules to display data in a customized way
 
 ## Concept
 
