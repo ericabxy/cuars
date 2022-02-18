@@ -19,7 +19,7 @@ import cuars
 TODO: depending on whether a directory, a text file, or an image file
 is supplied as a command-line argument, set up the correct display
 TODO: determine if file is text-encoded before opening
-TODO: this is really messy, too many globals and confusion
+TODO: just use globals: trying to be functional just gets messy
 TODO: allow "index" to value "None" until "A" pressed
 """
 
@@ -37,35 +37,47 @@ print("User: " + os.getlogin())
 print("Directory: " + dirname)
 
 # initialize the display object
-interf = cuars.Table(250, 150)
+width, height = 250, 150
+interf = cuars.Table(width, height)
+
+"""
+The Plan
+Initialize an "image" global and re-use it everywhere.
+Pressing A+B always resets to home directory.
+Functions
+    "new_folder" shows all files in a directory
+    "display_textfile" shows a text file line by line
+    "display_binfile" shows a binary file in hex notation line by line
+    "run_program" executes a subprocess with an option to terminate it
+"""
 
 # callbacks for tkinter widgets
 def do_button1():  # advance file index by 1 and loop
     global dirlist, dirname, index
     index = (index+1)%(len(dirlist)+1)
     print(dirname, dirlist[index])
-    show_table(dirname, dirlist, index)
+    new_folder(dirname, dirlist, index)
 
 def do_button2():
-    global dirlist, dirname, index
+    global dirlist, dirname, image, index
     print(dirname, dirlist[index])
     name = dirlist[index]
     path = os.path.join(dirname, name)
     if os.path.isdir(path):
         dirname, index = path, 0
         dirlist = os.listdir(dirname)
-        show_table(dirname, dirlist, index)
+        new_folder(dirname, dirlist, index)
     elif os.access(path, os.R_OK):
-        file = open(path)
-        print(file.read())
-        file.close()
+        print(path)
+        image = new_textfile(path)
+        canvas.create_image((0, 0), anchor=tk.NW, image=image)
 
 def do_button1and2(path="~"):
     global dirlist, dirname, index
     index = 0
     dirname = os.path.expanduser(path)
     dirlist = os.listdir(dirname)
-    show_table(dirname, dirlist, index)
+    new_folder(dirname, dirlist, index)
 
 def do_expand():
     pass
@@ -106,16 +118,28 @@ def colorize(root, files, tags={}):
         else: colors.append(7)
     return colors
 
-def show_table(root, list, mark):
+def new_folder(root, list, mark):
+    """
+    TODO: create a display on-the-fly and return the object.
+    """
     global image
     interf.name = os.path.split(dirname)[1]
     interf.set_pager(mark+1, len(list))
     s = interf.slice(list, mark)
-    interf.set_list(list[s:]) #, colorize(root, list[s:]))
+    interf.set_list(list[s:], colorize(root, list[s:]))
     interf.mark = mark-s
     interf.render()
     image = ImageTk.PhotoImage(interf.image)
     canvas.create_image((0, 0), anchor=tk.NW, image=image)
+
+def new_textfile(path):
+    interf = cuars.Text(width, height)
+    interf.name = os.path.basename(path)
+    with open(path) as file:
+        text = file.read()
+        interf.set_text(text)
+    interf.render()
+    return ImageTk.PhotoImage(interf.image)
 
 def fileinfo(path):
     info = os.stat(path)
@@ -133,7 +157,7 @@ def fileinfo(path):
 
 fileinfo(dirname)
 
-show_table(dirname, dirlist, index)
+new_folder(dirname, dirlist, index)
 
 # startup the TK interface
 root.mainloop()

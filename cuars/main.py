@@ -18,7 +18,6 @@ along with CUARS.  If not, see <https://www.gnu.org/licenses/>.
 """
 import math
 import os
-# TODO: shouldn't need the "os" module
 from PIL import Image, ImageDraw, ImageFont
 
 class Table():
@@ -29,14 +28,13 @@ class Table():
         for displaying each command as a badge.
         """
         basedir = os.path.dirname(__file__)
-        path = os.path.join(basedir, "fonts", "BebasNeue.otf")
+        path = os.path.join(basedir, "BebasNeue.otf")
         self.font = ImageFont.truetype(path, 22)
         self.image = Image.new("RGB", (width, height))
         self.draw = ImageDraw.Draw(self.image)
         self.name = "CUARS Table"
         self.pager = "0000"
         self.mark = None
-        self.set_colors()
         self.set_colors()
         self.set_pattern()
         self.width = width
@@ -68,15 +66,8 @@ class Table():
                 x = x + self.bw + self.space
                 y = self.top + self.space
 
-    def slice(self, list, mark):
-        page_height = self.height - self.bh  # height of badge area
-        badge_height = self.bh + self.space  # height of badge
-        page = math.floor(page_height/badge_height)  # badges per page
-        slicer = math.floor(mark / page) * page
-        return slicer
-
     def get_tkimage(self):
-        # TODO: this file should not require Tk
+        # TODO: this module should not require Tk
         return ImageTk.PhotoImage(self.image)
 
     def new_window(self):
@@ -84,7 +75,7 @@ class Table():
         draw = ImageDraw.Draw(window)
         # border (minimal to allow room for badges)
         draw.rectangle((0, 0, self.width, self.height),
-          outline=self.color[7], fill=self.color[7])
+          outline=self.color[6], fill=self.color[6])
         draw.rectangle(
           (self.left, self.top, self.width, self.height),
           outline=self.color[0], fill=self.color[0])
@@ -94,7 +85,7 @@ class Table():
         # pager (upper-right)
         x = self.width - self.font.getsize(self.pager)[0]
         draw.rectangle((x-5, 0, self.width, self.top-1),
-          outline=self.color[7], fill=self.color[7])
+          outline=self.color[6], fill=self.color[6])
         draw.rectangle((x-3, 0, x-1, self.top),
           outline=self.color[0], fill=self.color[0])
         draw.text((x, 0), self.pager, font=self.font, fill=self.color[0])
@@ -105,7 +96,7 @@ class Table():
             draw.rectangle((0, y - 3, self.left, y + self.bh + 3),
               outline=self.color[0], fill=self.color[0])
             draw.rectangle((0, y, self.left, y + self.bh),
-              outline=self.color[7], fill=self.color[7])
+              outline=self.color[6], fill=self.color[6])
         return window, draw
 
     def pagelen(self):
@@ -140,34 +131,51 @@ class Table():
         self.list = list
         self.pattern = colors
 
+    def slice(self, list, mark):
+        page_height = self.height - self.bh  # height of badge area
+        badge_height = self.bh + self.space  # height of badge
+        page = math.floor(page_height/badge_height)  # badges per page
+        slicer = math.floor(mark / page) * page  # where to start
+        return slicer
+
+
 class Text():
     def __init__(self, width, height):
         basedir = os.path.dirname(__file__)
-        path = os.path.join(basedir, "fonts", "BebasNeue.otf")
+        path = os.path.join(basedir, "BebasNeue.otf")
         self.font = ImageFont.truetype(path, 22)
+        self.font0 = ImageFont.truetype(path, 12)
         self.image = Image.new("RGB", (width, height))
         self.draw = ImageDraw.Draw(self.image)
         self.name = "CUARS Text"
         self.pager = "0000"
-        self.mark = None
-        self.set_colors()
-        self.set_pattern()
-        self.set_colors()
         self.width = width
         self.height = height
-        self.bw, self.bh = 100, 25
         self.left, self.top = 5, 25
         self.space = 5
 
-    def show_text(self, list, fore=(3, 5), back=(0, 0)):
-        nodes = []
-        for i, line in enumerate(list):
-            fg, bg = fore[i%len(fore)], back[i%len(back)]
-            nodes.append({'w': 250, 'h': 22, 'text': line,
-                          'bgcolor': self.color[bg],
-                          'color': self.color[fg]})
-        self.nodes = nodes
-        return self.show_table(nodes)
+    def new_window(self):
+        window = Image.new("RGB", (self.width, self.height))
+        draw = ImageDraw.Draw(window)
+        # border (minimal to allow room for badges)
+        draw.rectangle((0, 0, self.width, self.height),
+          outline="#FFFFFF", fill="#FFFFFF")
+        draw.rectangle(
+          (self.left, self.top, self.width, self.height),
+          outline="#000000", fill="#000000")
+        # title (upper-left)
+        draw.text((self.left, 0), self.name, font=self.font,
+          fill="#000000")
+        return window, draw
+
+    def render(self):
+        left, top, right, bottom = 0, 0, self.width, self.height
+        self.image, draw = self.new_window()
+        draw.text((self.left, self.top), self.text,
+                font=self.font0, fill="#FFFFFF")
+
+    def set_text(self, text):
+        self.text = text
 
 
 # based on a color scheme of GNOME Terminal
