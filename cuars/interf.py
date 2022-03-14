@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-#Copyright 2022 Eric Duhamel
+#    Copyright 2022 Eric Duhamel
 #
 #    This file is part of CUARS.
 #
@@ -15,16 +15,17 @@
 #
 #    You should have received a copy of the GNU General Public License
 #    along with CUARS. If not, see <https://www.gnu.org/licenses/>.
-#
 """
 Simple command interfaces. Determine the shape of data and controls
 according to a window of specific width and height.
 
-'Table' is for listing filenames, contents of directories.
+'Table' arranges filenames or commands in a pattern.
 
-'Badge' represents a filename in a table.
+'Badge' represents selectable files or commands.
 
-'Matrix' is for displaying the contents of a binary file.
+'Matrix' displays binary data.
+
+'Script' displays reflowable text.
 """
 
 class Table():
@@ -35,7 +36,7 @@ class Table():
         for i, name in enumerate(names):
             color = ("#00FFFF", "#FF00FF")[i % 2]
             badge = Badge(name, x, y, 100, 25)
-            badge.color = color
+            badge.bgcolor, badge.color = color, "#000000"
             badges.append(badge)
             y = y + 30
             if y > height:
@@ -50,14 +51,21 @@ class Badge():
         self.name = name
         self.x, self.y = x, y
         self.width, self.height = width, height
+        self.bgcolor = "#000000"
         self.color = "#AAAAAA"
 
-    def click(self):
+    def touch(self):
         print(self.name)
 
 
 class Matrix():
     """Binary data displayed in a fixed-width table."""
 
-    def __init__(self):
-        return None
+    def __init__(self, width, height, data):
+        script = ""
+        for i, datum in enumerate(data):
+            name = format(datum, 'X').zfill(2)
+            script = "".join([script, name, " "])
+            if i % 16 == 15:
+                script = "".join([script, "\n"])
+        self.script = script

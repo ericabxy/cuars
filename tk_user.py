@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-#a stylized user interface to the filesystem
 #    Copyright 2022 Eric Duhamel
 #
 #    This program is free software: you can redistribute it and/or
@@ -14,47 +13,77 @@
 #
 #    You should have received a copy of the GNU General Public License
 #    along with this program. If not, see
-#    <https://www.gnu.org/licenses/>. import os
-#
+#    <https://www.gnu.org/licenses/>.
+import os
+
 import tkinter
 
 from cuars import interf
-from PIL import Image
-
-directory = os.getcwd()
-basename = os.path.basename(directory)
-table = interf.Table(320, 200, os.listdir(directory))
 
 class Window(tkinter.Tk):
-    def __init__(self, directory):
+    def __init__(self):
         super().__init__()
-        self.title(os.path.basename(directory))
-        self.geometry("320x200")
-        self.configure(bg='black')
-        table = interf.Table(320, 200, os.listdir(directory))
-        for badge in table.badges:
-            name, color = badge.name, badge.color
-            x, y, width, height = badge.x, badge.y, badge.width, badge.height
-            fileobj = File(name)
-            button = tkinter.Button(self, text=name.upper(),
-                    bg=color,
-                    command=fileobj.click)
-            button.place(x=x, y=y, width=width, height=height)
+        self.title("tk_user")
+        self.geometry("320x240")
 
 
-class File():
-    def __init__(self, name):
-        self.name = name
+class PathObject():
+    def __init__(self, fullpath):
+        self.directory = os.path.dirname(fullpath)
+        self.name = os.path.basename(fullpath)
 
     def click(self):
-        if os.path.isdir(self.name):
-            print(os.listdir(self.name))  # list contents of directory
-        elif os.path.isfile(self.name):
-            with open(self.name, 'rb') as file:
-                print(file.read(64))  # print first 64 bytes of file
+        path = os.path.join(self.directory, self.name)
+        if os.path.isdir(path):  # show contents of directory
+            fullpath = os.path.join(self.directory, self.name)
+            panel = Panel(window)
+            panel.make_table(fullpath)
+            panel.tkraise()
+        elif os.path.isfile(path):
+            fullpath = os.path.join(self.directory, self.name)
+            file = open(fullpath, 'rb')
+            panel = Panel(window)
+            panel.make_matrix(file.read(256))
+            panel.tkraise()
+
+
+class Panel(tkinter.Frame):
+    def __init__(self, container):
+        super().__init__(container)
+        self.configure(bg='black', width=320, height=200)
+
+    def make_table(self, directory):
+        table = interf.Table(320, 200, os.listdir(directory))
+        for badge in table.badges:
+            fullpath = os.path.join(directory, badge.name)
+            fileobj = PathObject(fullpath)
+            button = tkinter.Button(self, text=badge.name.upper(),
+                    bg=badge.bgcolor, fg=badge.color,
+                    command=fileobj.click)
+            button.place(x=badge.x, y=badge.y,
+                    height=badge.height, width=badge.width)
+        self.place(x=0, y=40)
+
+    def make_matrix(self, filename):
+        matrix = interf.Matrix(320, 200, filename)
+        label = tkinter.Label(self, text=matrix.script,
+                bg='black', fg='lightgray')
+        label.place(x=0, y=0)
+        self.place(x=0, y=40)
+
+    def click(self):
+        self.tkraise()
 
 
 if __name__ == "__main__":
-    directory = os.getcwd()
-    window = Window(directory)
+    window = Window()
+    homeobj = PathObject(os.path.expanduser("~"))
+    workobj = PathObject(os.getcwd())
+    rootobj = PathObject("/")
+    homebtn = tkinter.Button(window, text="home", command=homeobj.click)
+    rootbtn = tkinter.Button(window, text="root", command=rootobj.click)
+    workbtn = tkinter.Button(window, text="work", command=workobj.click)
+    homebtn.place(x=0, y=0)
+    rootbtn.place(x=100, y=0)
+    workbtn.place(x=200, y=0)
     window.mainloop()
