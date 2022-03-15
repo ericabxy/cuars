@@ -27,13 +27,13 @@ import time
 
 from PIL import Image, ImageDraw, ImageFont
 
-from cuars import interf
+from cuars import faces
 import adargb
 
 io = adargb.BoardIO()
 display = adargb.Display(135, 240)
 
-table = interf.Table(240, 135, os.listdir(os.getcwd()))
+table = faces.Table(240, 135, os.listdir(os.getcwd()))
 font = ImageFont.truetype("fonts/BebasNeue.otf", 22)
 image = Image.new("RGB", (240, 135))
 draw = ImageDraw.Draw(image)

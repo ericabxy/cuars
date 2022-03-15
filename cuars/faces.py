@@ -19,53 +19,62 @@
 Simple command interfaces. Determine the shape of data and controls
 according to a window of specific width and height.
 
-'Table' arranges filenames or commands in a pattern.
+'Table' arranges filenames or commands in a grid pattern.
 
 'Badge' represents selectable files or commands.
 
-'Matrix' displays binary data.
+'Matrix' creates binary data strings with a fixed width.
 
-'Script' displays reflowable text.
+'Script' displays reflowable text in a vertical space.
 """
 
 class Table():
-    """A panel of evenly-spaced touchable controls."""
+    """A panel of evenly-spaced controls."""
 
-    def __init__(self, width, height, names):
-        badges, x, y = [], 0, 0
+    def __init__(self, width, height, names, left=5, top=5):
+        badges, x, y = [], left, top
         for i, name in enumerate(names):
             color = ("#00FFFF", "#FF00FF")[i % 2]
-            badge = Badge(name, x, y, 100, 25)
+            badge = Badge(name, x, y)
             badge.bgcolor, badge.color = color, "#000000"
             badges.append(badge)
-            y = y + 30
+            y = y + badge.height + top
             if y > height:
-                x, y = x + 105, 0
+                x, y = x + badge.width + left, top
         self.badges = badges
 
 
 class Badge():
-    """A touchable control with a label."""
+    """A rectangular control with a label."""
 
-    def __init__(self, name, x, y, width, height):
+    def __init__(self, name, x, y, width=120, height=30):
         self.name = name
         self.x, self.y = x, y
         self.width, self.height = width, height
-        self.bgcolor = "#000000"
-        self.color = "#AAAAAA"
+        self.bgcolor = "#AAAAAA"
+        self.color = "#000000"
 
     def touch(self):
         print(self.name)
 
 
 class Matrix():
-    """Binary data displayed in a fixed-width table."""
+    """Binary data in fixed-width lines."""
 
     def __init__(self, width, height, data):
+        self.width, self.height = width, height
+        self.hexadecimal(data)
+
+    def hexadecimal(self, data, length=1, width=16):
+        """Parse the data as hexadecimal strings."""
         script = ""
-        for i, datum in enumerate(data):
-            name = format(datum, 'X').zfill(2)
+        for i in range(0, len(data), length):
+            datum = data[i: i + length]
+            name = datum.hex()
             script = "".join([script, name, " "])
-            if i % 16 == 15:
+            if i % width == width - length:
                 script = "".join([script, "\n"])
         self.script = script
+
+    def characters(self, data):
+        """Parse the data as ascii characters."""
