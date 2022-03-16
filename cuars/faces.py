@@ -26,6 +26,9 @@ according to a window of specific width and height.
 'Matrix' creates binary data strings with a fixed width.
 
 'Script' displays reflowable text in a vertical space.
+
+So far, this module uses nothing but builtins. Consider keeping it
+that way.
 """
 
 class Table():
@@ -54,7 +57,7 @@ class Badge():
         self.bgcolor = "#AAAAAA"
         self.color = "#000000"
 
-    def touch(self):
+    def activate(self):
         print(self.name)
 
 
@@ -63,18 +66,20 @@ class Matrix():
 
     def __init__(self, width, height, data):
         self.width, self.height = width, height
-        self.hexadecimal(data)
+        self.data = data
 
-    def hexadecimal(self, data, length=1, width=16):
-        """Parse the data as hexadecimal strings."""
-        script = ""
-        for i in range(0, len(data), length):
-            datum = data[i: i + length]
-            name = datum.hex()
-            script = "".join([script, name, " "])
-            if i % width == width - length:
-                script = "".join([script, "\n"])
-        self.script = script
+    def get_hexadecimal(self, length=1, width=16):
+        """Parse the data as hexadecimal integers."""
+        lines = []
+        for i in range(0, len(self.data), width):
+            line = self.data[i: i + width]
+            lines.append(line.hex(" ", length))
+        return lines
 
-    def characters(self, data):
+    def get_characters(self, encoding='ascii', length=1, width=64):
         """Parse the data as ascii characters."""
+        lines = []
+        for i in range(0, len(self.data), width):
+            line = self.data[i: i + width]
+            lines.append(line.decode(encoding))
+        return lines
