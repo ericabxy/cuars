@@ -76,10 +76,13 @@ class Matrix():
             lines.append(line.hex(" ", length))
         return lines
 
-    def get_characters(self, encoding='ascii', length=1, width=64):
+    def get_alphanumeric(self, encoding='ascii', length=1, width=80):
         """Parse the data as ascii characters."""
         lines = []
         for i in range(0, len(self.data), width):
             line = self.data[i: i + width]
-            lines.append(line.decode(encoding))
+            try:
+                lines.append(line.decode(encoding))
+            except UnicodeDecodeError:
+                print("caught:", UnicodeDecodeError)
         return lines

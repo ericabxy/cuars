@@ -37,32 +37,48 @@ class BadgeButton(tk.Button):
         self.window.open_path(self.path)
 
 
-class TableFrame(tk.LabelFrame):
-    def __init__(self, container, width, height):
+class MatrixFrame(tk.LabelFrame):
+    def __init__(self, container, width, height, title="TITLE"):
         super().__init__(container)
-        self.configure(bg='yellow', text="TITLE")
+        self.configure(bg='yellow', text=title)
+        self.text = tk.Text(self, bg='black', fg='white', state='disabled')
+        self.text.pack(expand=True, fill=tk.BOTH, side=tk.LEFT)
+        self.button = tk.Button(self.text, text="CLICK")
+        self.button.pack(side=tk.RIGHT)
+        self.place(x=0, y=0, width=width, height=height)
+
+    def put_matrix(self, matrix):
+        self.matrix = matrix
+        self.show_hex()
+
+    def show_hex(self):
+        self.text.configure(state='normal')
+        self.text.delete("1.0", tk.END)
+        for line in self.matrix.get_hexadecimal():
+            self.text.insert(tk.END, line)
+            self.text.insert(tk.END, "\n")
+        self.text.configure(state='disabled')
+        self.button.configure(text="ASC", command=self.show_asc)
+
+    def show_asc(self):
+        self.text.configure(state='normal')
+        self.text.delete("1.0", tk.END)
+        for line in self.matrix.get_alphanumeric():
+            self.text.insert(tk.END, line)
+            self.text.insert(tk.END, "\n")
+        self.text.configure(state='disabled')
+        self.button.configure(text="HEX", command=self.show_hex)
+
+class TableFrame(tk.LabelFrame):
+    def __init__(self, container, width, height, title="TITLE"):
+        super().__init__(container)
+        self.configure(bg='yellow', text=title)
         self.canvas = tk.Canvas(self, bg='black')
         self.canvas.pack(expand=True, fill=tk.BOTH, side=tk.LEFT)
         self.place(x=0, y=0, width=width, height=height)
 
     def show_button(self, badge, root):
         button = BadgeButton(self.canvas, badge, root)
-
-
-class MatrixFrame(tk.LabelFrame):
-    def __init__(self, container, width, height):
-        super().__init__(container)
-        self.configure(bg='yellow', text="TITLE")
-        self.text = tk.Text(self, bg='black', fg='white', state='disabled')
-        self.text.pack(expand=True, fill=tk.BOTH, side=tk.LEFT)
-        self.place(x=0, y=0, width=width, height=height)
-
-    def show_text(self, lines):
-        self.text.configure(state='normal')
-        for line in lines:
-            self.text.insert(tk.END, line)
-            self.text.insert(tk.END, "\n")
-        self.text.configure(state='disabled')
 
 
 class Window(tk.Tk):
@@ -80,16 +96,18 @@ class Window(tk.Tk):
         if os.path.isdir(path):
             os.chdir(path)
             directory = os.getcwd()
+            title = os.path.basename(directory).upper()
             names = os.listdir(directory)
             table = cuars.Table(640, 400, names)
-            self.frame = TableFrame(self, 640, 400)
+            self.frame = TableFrame(self, 640, 400, title=title)
             for badge in table.badges:
                 self.frame.show_button(badge, self)
         elif os.path.isfile(path):
+            title = os.path.basename(path).upper()
+            self.frame = MatrixFrame(self, 640, 400, title=title)
             with open(path, 'rb') as file:
-                matrix = cuars.Matrix(320, 200, file.read(256))
-            self.frame = MatrixFrame(self, 640, 400)
-            self.frame.show_text(matrix.get_hexadecimal())
+                matrix = cuars.Matrix(640, 400, file.read(256))
+            self.frame.put_matrix(matrix)
 
     def go_home(self):
         home = os.path.expanduser("~")
