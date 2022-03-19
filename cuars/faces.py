@@ -26,9 +26,6 @@ according to a window of specific width and height.
 'Matrix' creates binary data strings with a fixed width.
 
 'Script' displays reflowable text in a vertical space.
-
-So far, this module uses nothing but builtins. Consider keeping it
-that way.
 """
 
 class Table():
@@ -37,9 +34,9 @@ class Table():
     def __init__(self, width, height, names, left=5, top=5):
         badges, x, y = [], left, top
         for i, name in enumerate(names):
-            color = ("#00FFFF", "#FF00FF")[i % 2]
             badge = Badge(name, x, y)
-            badge.bgcolor, badge.color = color, "#000000"
+            badge.bgcolor = ("#00FFFF", "#FF00FF")[i % 2]
+            badge.color = "#000000"
             badges.append(badge)
             y = y + badge.height + top
             if y > height:
@@ -62,19 +59,34 @@ class Badge():
 
 
 class Matrix():
-    """Binary data in fixed-width lines."""
+    """Binary data arranged into cells."""
 
-    def __init__(self, width, height, data):
-        self.width, self.height = width, height
+    def __init__(self, data, width, height, left=5, top=5):
         self.data = data
+        self.width, self.height = width, height
+        self.left, self.top = left, top
+
+    def get_rawdata(self):
+        lines = []
+        for i in range(0, len(self.data), 16):
+            line = self.data[i: i + 16].hex(" ")
+            ascii = self.data[i: i + 16].decode()
+            trans = ascii.maketrans("\n\t\r", "...")
+            ascii = ascii.translate(trans)
+            lines.append("   ".join([line, ascii]))
+        return lines
 
     def get_hexadecimal(self, length=1, width=16):
-        """Parse the data as hexadecimal integers."""
-        lines = []
-        for i in range(0, len(self.data), width):
-            line = self.data[i: i + width]
-            lines.append(line.hex(" ", length))
-        return lines
+        x, y = self.left, self.top
+        cells = []
+        for i in range(0, len(self.data), length):
+            datum = self.data[i: i + length].hex()
+            cell = Cell(datum, x, y)
+            cells.append(cell)
+            x = x + cell.width + self.left
+            if x > self.width:
+                x, y = self.left, y + cell.height + self.top
+        return cells
 
     def get_alphanumeric(self, encoding='ascii', length=1, width=80):
         """Parse the data as ascii characters."""
@@ -86,3 +98,12 @@ class Matrix():
             except UnicodeDecodeError:
                 print("caught:", UnicodeDecodeError)
         return lines
+
+
+class Cell():
+    def __init__(self, datum, x, y, width=20, height=15):
+        self.datum = datum
+        self.x, self.y = x, y
+        self.width, self.height = width, height
+        self.bgcolor = "#555555"
+        self.color = "#AAAAAA"
