@@ -46,3 +46,6 @@ class BinaryFile():
             line = self.data[i: i + length]
             lines.append(line)
         return lines
+
+    def get_pairs(self, byteorder='little'):
+        """Return pairs of integers."""

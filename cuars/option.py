@@ -18,7 +18,33 @@
 """
 Presents a list as evenly-spaced buttons for interaction.
 """
+import os
 
 class OptionDir():
-    def __init__(self):
-        return None
+    def __init__(self, path, left=5, top=5, width=320, height=200):
+        options = []
+        x, y = left, top
+        names = os.listdir(path)
+        for i, name in enumerate(names):
+            option = Badge(name, x, y)
+            option.bgcolor = ("#00FFFF", "#FF00FF")[i % 2]
+            option.color = "#000000"
+            options.append(option)
+            y = y + option.height + top
+            if y > height:
+                x, y = x + option.width + left, top
+        self.options = options
+
+class Option():
+    """A rectangular control with a label."""
+
+    def __init__(self, name, x, y, width=120, height=30):
+        self.name = name
+        self.x, self.y = x, y
+        self.width, self.height = width, height
+        self.bgcolor = "#AAAAAA"
+        self.color = "#000000"
+
+    def activate(self):
+        """Descend into the directory or view/exec the file."""
+        print(self.name)
