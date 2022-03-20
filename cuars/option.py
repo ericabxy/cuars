@@ -16,24 +16,26 @@
 #    You should have received a copy of the GNU General Public License
 #    along with CUARS. If not, see <https://www.gnu.org/licenses/>.
 """
-Presents a list as evenly-spaced buttons for interaction.
+Presents a list as evenly-spaced rectangles for interaction.
 """
 import os
 
-class OptionDir():
-    def __init__(self, path, left=5, top=5, width=320, height=200):
+class OptionsDir():
+    def __init__(self, path, left=20, top=25, width=320, height=200):
         options = []
         x, y = left, top
         names = os.listdir(path)
         for i, name in enumerate(names):
-            option = Badge(name, x, y)
-            option.bgcolor = ("#00FFFF", "#FF00FF")[i % 2]
+            option = Option(name, x, y)
+            option.bgcolor = ("#AAAAFF", "#AAFFAA")[i % 2]
             option.color = "#000000"
+            option.path = os.path.join(path, name)
             options.append(option)
-            y = y + option.height + top
+            y = y + option.height + 5
             if y > height:
-                x, y = x + option.width + left, top
+                x, y = x + option.width + 5, top
         self.options = options
+
 
 class Option():
     """A rectangular control with a label."""
@@ -42,7 +44,7 @@ class Option():
         self.name = name
         self.x, self.y = x, y
         self.width, self.height = width, height
-        self.bgcolor = "#AAAAAA"
+        self.bgcolor = "#FFFFFF"
         self.color = "#000000"
 
     def activate(self):

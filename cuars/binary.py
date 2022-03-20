@@ -24,28 +24,30 @@ BinaryFile: takes a path to a file to open.
 BinaryData: takes a binary data sequence.
 """
 
-class BinaryFile():
-    def __init__(self, path, width=320, height=200):
-        with open(path, 'rb') as file:
-            self.data = file.read()
+class BinaryData():
+    def __init__(self, data):
+        self.data = data
 
-    def get_hex(self, length=2, width=16):
+    def get_hex(self, length=1, width=16):
         """Return hexadecimal strings from the data."""
         lines = []
         for i in range(0, len(self.data), width):
-            number = hex(i)[2:].zfill(8)
-            line = self.data[i: i + width].hex(" ", length)
-            line = "  ".join([number, line]).upper()
+#            number = hex(i)[2:].zfill(8)
+            line = self.data[i: i + width].hex()
+#            line = "  ".join([number, line]).upper()
             lines.append(line)
         return lines
 
-    def get_seq(self, length=40):
+    def get_lines(self):
         """Return the data sequence unaltered."""
-        lines = []
-        for i in range(0, len(self.data), length):
-            line = self.data[i: i + length]
-            lines.append(line)
-        return lines
+        return self.data.splitlines()
 
     def get_pairs(self, byteorder='little'):
         """Return pairs of integers."""
+
+
+class BinaryFile(BinaryData):
+    def __init__(self, path):
+        with open(path, 'rb') as file:
+            data = file.read(4096)
+        super().__init__(data)

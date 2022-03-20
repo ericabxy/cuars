@@ -23,4 +23,4 @@ frameworks.
 + Pillow, for a raw image of each display to use on embedded devices
   with tiny screens
 """
-from .faces import Matrix, Table
+from .faces import Table

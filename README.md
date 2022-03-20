@@ -33,3 +33,9 @@ require [Pillow][2].
 
 [1]: https://wiki.python.org/moin/TkInter
 [2]: https://python-pillow.org/
+
+## Links
+
+[GUI Programming (Tkinter)](https://www.tutorialspoint.com/python/python_gui_programming.htm)
+[Tcl Developer Site](https://www.tcl.tk/)
+[Tkinter Tutorial](https://www.pythontutorial.net/tkinter/)
