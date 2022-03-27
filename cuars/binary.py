@@ -32,9 +32,7 @@ class BinaryData():
         """Return hexadecimal strings from the data."""
         lines = []
         for i in range(0, len(self.data), width):
-#            number = hex(i)[2:].zfill(8)
-            line = self.data[i: i + width].hex()
-#            line = "  ".join([number, line]).upper()
+            line = self.data[i: i + width].hex(" ", 2)
             lines.append(line)
         return lines
 
@@ -47,7 +45,7 @@ class BinaryData():
 
 
 class BinaryFile(BinaryData):
-    def __init__(self, path):
+    def __init__(self, path, length=4096):
         with open(path, 'rb') as file:
-            data = file.read(4096)
+            data = file.read(length)
         super().__init__(data)
