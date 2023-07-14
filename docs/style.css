@@ -5,7 +5,7 @@ html {
 
 body {
   background-color: Black;
-  border-radius: 1em;
+  border-radius: 16px;
   color: Silver;
   margin: 8px auto;
   max-width: 70em;
@@ -14,7 +14,7 @@ body {
 
 h1 {
   background-color: Gold;
-  border-radius: 0 1em 1em 0;
+  border-radius: 16px 16px 0 0;
   color: Black;
   padding: 0.5em;
   text-transform: uppercase;
@@ -23,17 +23,57 @@ h1 {
 a {
   color: black;
   text-decoration: none;
-  text-transforms: uppercase;
+  text-transform: uppercase;
 }
 
 a:link {
-  background-color: Aqua;
+  background-color: RoyalBlue;
 }
 
 a:visited {
-  background-color: Plum;
+  background-color: Crimson;
 }
 
 a:active {
   background-color: Tomato;
+}
+
+/* examples of styles and colors */
+.badge {
+  background-color: DarkGray;
+  border-radius: 8px;
+  color: black;
+  display: inline-block;
+  font-weight: bold;
+  margin: 0.5em;
+  padding: 0.5em;
+  text-transform: uppercase;
+}
+
+.blue {
+  background-color: RoyalBlue;
+}
+
+.green {
+  background-color: MediumSeaGreen;
+}
+
+.cyan {
+  background-color: LightBlue;
+}
+
+.red {
+  background-color: Crimson;
+}
+
+.magenta {
+  background-color: Orchid;
+}
+
+.yellow {
+  background-color: Gold;
+}
+
+.white {
+  background-color: Gainsboro;
 }

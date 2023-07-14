@@ -1,11 +1,12 @@
 %.html: %.md
-	perl -e 'print "<!DOCTYPE html>\n"' > $@
-	perl -e 'print "<html>\n"' >> $@
-	perl -e 'print "<head>\n"' >> $@
-	perl -e 'print "<link rel=\"stylesheet\" type=\"text/css\" href=\"style.css\" />\n"' >> $@
-	perl -e 'print "</head>\n\n"' >> $@
-	perl -e 'print "<body>\n"' >> $@
-	perl markdown $< >> $@
-	perl -e 'print "<hr style=\"clear:both;\">\n"' >> $@
-	perl -e 'print "</body>\n"' >> $@
-	perl -e 'print "</html>\n"' >> $@
+	echo '<!DOCTYPE html>' > $@
+	echo '<html>' >> $@
+	echo '<head>' >> $@
+	echo '<link rel="stylesheet" type="text/css" href="style.css" />' >> $@
+	echo '</head>' >> $@
+	echo '' >> $@
+	echo '<body>' >> $@
+	markdown $< >> $@
+	echo '<hr style="clear:both;">' >> $@
+	echo '</body>' >> $@
+	echo '</html>' >> $@
