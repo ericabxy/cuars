@@ -1,0 +1,39 @@
+html {
+  background-color: LightSlateGray;
+  font-family: Tahoma, Verdana, sans-serif;
+}
+
+body {
+  background-color: Black;
+  border-radius: 1em;
+  color: Silver;
+  margin: 8px auto;
+  max-width: 70em;
+  padding: 1em;
+}
+
+h1 {
+  background-color: Gold;
+  border-radius: 0 1em 1em 0;
+  color: Black;
+  padding: 0.5em;
+  text-transform: uppercase;
+}
+
+a {
+  color: black;
+  text-decoration: none;
+  text-transforms: uppercase;
+}
+
+a:link {
+  background-color: Aqua;
+}
+
+a:visited {
+  background-color: Plum;
+}
+
+a:active {
+  background-color: Tomato;
+}
