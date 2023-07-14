@@ -5,6 +5,10 @@ Command Utility Access/Retrieval System
 Inspiration
 -----------
 
+- LCARS: a cinematic fantasy computer user interface
+- GNOME: a real open-source desktop environment
+- GNU: a computer operating system based on UNIX
+
 
 Example Interface Module
 ------------------------
