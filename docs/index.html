@@ -1,18 +1,45 @@
 <!DOCTYPE html>
-<html>
+<html lang="en-us">
 <head>
+<title>
+Command Utility Access and Retrieval System
+</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="stylesheet" type="text/css" href="style.css" />
 </head>
 
 <body>
 <h1>Command Utility Access/Retrieval System</h1>
 
+<h2>Basic Purpose</h2>
+
+<p>At its most basic level, CUARS reads a filesystem using Python's <code>os</code> module
+and presents it to the user in a window of specified size. The user has the
+option to select the file, after which they can view or execute it. Files may
+be viewed in ASCII or binary mode. CUARS thus provides a basic user interface
+that can navigate a computer, view files, and execute scripts even when there
+is no standard-size monitor present.</p>
+
+<h2>Advanced Purpose</h2>
+
+<p>CUARS will also provide a submodule format. If it detects that a file is a
+Python submodule, it can load that submodule as an interface. The submodule
+could, for example, control a music player backend while providing the user
+with playback controls and media information.</p>
+
+<h2>Minimal User Interface</h2>
+
+<p>CUARS is being designed for physical user interfaces that are typically
+attached to embedded devices like Raspberry Pi and Beaglebone Black. It should
+fit screens as small or smaller than 160x120 pixels. It will accept user
+interaction from touch screens or even 2-button interfaces.</p>
+
 <h2>Inspiration</h2>
 
 <ul>
 <li>LCARS: a cinematic fantasy computer user interface</li>
 <li>GNOME: a real open-source desktop environment</li>
-<li>POSIX: a family of IEEE standards</li>
+<li>GNU: a computer operating system based on UNIX</li>
 </ul>
 
 <h2>Example Interface Module</h2>
@@ -29,6 +56,5 @@
 <li class="badge yellow">Yellow</li>
 <li class="badge white">White</li>
 </ul>
-<hr style="clear:both;">
 </body>
 </html>
