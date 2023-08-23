@@ -16,6 +16,7 @@ h1 {
   background-color: Gold;
   border-radius: 16px 16px 0 0;
   color: Black;
+  margin: 0;
   padding: 0.5em;
   text-transform: uppercase;
 }

@@ -2,6 +2,35 @@ Command Utility Access/Retrieval System
 =======================================
 
 
+Basic Purpose
+-------------
+
+At its most basic level, CUARS reads a filesystem using Python's `os` module
+and presents it to the user in a window of specified size. The user has the
+option to select the file, after which they can view or execute it. Files may
+be viewed in ASCII or binary mode. CUARS thus provides a basic user interface
+that can navigate a computer, view files, and execute scripts even when there
+is no standard-size monitor present.
+
+
+Advanced Purpose
+----------------
+
+CUARS will also provide a submodule format. If it detects that a file is a
+Python submodule, it can load that submodule as an interface. The submodule
+could, for example, control a music player backend while providing the user
+with playback controls and media information.
+
+
+Minimal User Interface
+----------------------
+
+CUARS is being designed for physical user interfaces that are typically
+attached to embedded devices like Raspberry Pi and Beaglebone Black. It should
+fit screens as small or smaller than 160x120 pixels. It will accept user
+interaction from touch screens or even 2-button interfaces.
+
+
 Inspiration
 -----------
 
